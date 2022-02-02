@@ -605,6 +605,9 @@ int set_shutdown_cond(struct mtk_battery *gm, int shutdown_cond)
 		mutex_unlock(&sdc->lock);
 		pr_err("[%s]OVERHEAT shutdown!\n", __func__);
 		enable_timer = 1;
+	#ifdef MTK_BASE
+		kernel_power_off();
+	#endif
 		break;
 	case SOC_ZERO_PERCENT:
 		if (sdu->shutdown_status.is_soc_zero_percent != true) {

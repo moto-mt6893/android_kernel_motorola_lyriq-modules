@@ -938,9 +938,12 @@ struct irq_controller {
 #define SHUTDOWN_TIME 40
 #define AVGVBAT_ARRAY_SIZE 30
 #define INIT_VOLTAGE 3450
-#define BATTERY_SHUTDOWN_TEMPERATURE 60
 #define DISABLE_POWER_PATH_VOLTAGE 2800
-
+#ifdef MTK_BASE
+#define BATTERY_SHUTDOWN_TEMPERATURE 60
+#else
+#define BATTERY_SHUTDOWN_TEMPERATURE 80
+#endif
 struct shutdown_condition {
 	bool is_overheat;
 	bool is_soc_zero_percent;
