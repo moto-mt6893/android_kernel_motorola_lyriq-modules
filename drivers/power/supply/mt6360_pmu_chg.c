@@ -335,6 +335,7 @@ struct mt6360_chg_info {
 #if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
 	struct power_supply *batt_psy;
 	char                *batt_uenvp[2];
+	struct power_supply *wlc_psy;
 #endif
 	/* otg_vbus */
 	struct regulator_dev *otg_rdev;
@@ -2483,6 +2484,7 @@ static irqreturn_t mt6360_pmu_dcdti_handler(int irq, void *data)
 #define CHG_SHOW_MAX_SIEZE 50
 static int mmi_notify_vbus_event(struct mt6360_chg_info *mpci, bool vbus_status) {
 	char *event_string = NULL;
+	union power_supply_propval val = {0};
 
 	if(!mpci->batt_psy)
 		mpci->batt_psy = power_supply_get_by_name("battery");
@@ -2490,6 +2492,15 @@ static int mmi_notify_vbus_event(struct mt6360_chg_info *mpci, bool vbus_status)
 		dev_notice(mpci->dev,
 			"%s: get battery supply failed\n", __func__);
 		return -EINVAL;
+	}
+	if(!mpci->wlc_psy)
+		mpci->wlc_psy = power_supply_get_by_name("wireless");
+
+	if (mpci->wlc_psy) {
+		power_supply_get_property(mpci->wlc_psy,
+				POWER_SUPPLY_PROP_ONLINE, &val);
+		if (val.intval)
+			return 0;
 	}
 
 	event_string = kmalloc(CHG_SHOW_MAX_SIEZE, GFP_KERNEL);

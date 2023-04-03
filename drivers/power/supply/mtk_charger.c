@@ -3661,12 +3661,41 @@ static const struct attribute_group power_supply_mmi_attr_group = {
 	.attrs = mmi_g,
 };
 
-#define MMI_BATT_UEVENT_NUM (2)
+static bool mmi_check_vbus_present(struct mtk_charger *info)
+{
+	int vbus_present = false;
+	int vbus_vol = 0;
+	union power_supply_propval val = {0};
+
+	if (info == NULL)
+		return false;
+
+	if (!info->wl_psy) {
+		info->wl_psy = power_supply_get_by_name("wireless");
+	}
+
+	if (info->wl_psy) {
+		power_supply_get_property(info->wl_psy,
+				POWER_SUPPLY_PROP_ONLINE, &val);
+		if (val.intval)
+			return false;
+	}
+
+	vbus_vol = get_vbus(info);
+	if (vbus_vol >= 3000)
+		vbus_present = true;
+
+	return vbus_present;
+}
+
+#define MMI_BATT_UEVENT_NUM (4)
 static void mmi_updata_batt_status(struct mtk_charger *info)
 {
 	static struct power_supply	*batt_psy;
 	char *chrg_rate_string = NULL;
 	char *batt_age_string = NULL;
+	char *chrg_lpd_string = NULL;
+	char *chrg_vbus_string = NULL;
 	char *batt_string = NULL;
 	char *envp[MMI_BATT_UEVENT_NUM + 1];
 	int rc;
@@ -3691,6 +3720,8 @@ static void mmi_updata_batt_status(struct mtk_charger *info)
 	} else {
 		chrg_rate_string = batt_string;
 		batt_age_string = &batt_string[CHG_SHOW_MAX_SIZE];
+		chrg_lpd_string = &batt_string[CHG_SHOW_MAX_SIZE * 2];
+		chrg_vbus_string = &batt_string[CHG_SHOW_MAX_SIZE * 3];
 
 		scnprintf(chrg_rate_string, CHG_SHOW_MAX_SIZE,
 			  "POWER_SUPPLY_CHARGE_RATE=%s",
@@ -3700,9 +3731,17 @@ static void mmi_updata_batt_status(struct mtk_charger *info)
 			  "POWER_SUPPLY_AGE=%d",
 			  mmi_get_battery_age());
 
+		scnprintf(chrg_lpd_string, CHG_SHOW_MAX_SIZE,
+			  "POWER_SUPPLY_LPD_PRESENT=%s", info->water_detected? "true": "false");
+
+		scnprintf(chrg_vbus_string, CHG_SHOW_MAX_SIZE,
+			  "POWER_SUPPLY_VBUS_PRESENT=%s", mmi_check_vbus_present(info)? "true": "false");
+
 		envp[0] = chrg_rate_string;
 		envp[1] = batt_age_string;
-		envp[2] = NULL;
+		envp[2] = chrg_lpd_string;
+		envp[3] = chrg_vbus_string;
+		envp[4] = NULL;
 		kobject_uevent_env(&batt_psy->dev.kobj, KOBJ_CHANGE, envp);
 		kfree(batt_string);
 	}
@@ -5402,15 +5441,14 @@ static void mtk_charger_external_power_changed(struct power_supply *psy)
 	_wake_up_charger(info);
 }
 
-#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
 #define CHG_SHOW_MAX_SIEZE 50
-static int mmi_notify_lpd_event(struct charger_manager *info) {
+static int mmi_notify_lpd_event(struct mtk_charger *pinfo) {
 	char *event_string = NULL;
 	char *batt_uenvp[2];
 
-	if(!info->battery_psy)
-		info->battery_psy = power_supply_get_by_name("battery");
-	if(!info->battery_psy) {
+	if(!pinfo->bat_psy)
+		pinfo->bat_psy = power_supply_get_by_name("battery");
+	if(!pinfo->bat_psy) {
 		chr_err("%s: get battery supply failed\n", __func__);
 		return -EINVAL;
 	}
@@ -5418,16 +5456,15 @@ static int mmi_notify_lpd_event(struct charger_manager *info) {
 	event_string = kmalloc(CHG_SHOW_MAX_SIEZE, GFP_KERNEL);
 
 	scnprintf(event_string, CHG_SHOW_MAX_SIEZE,
-			"POWER_SUPPLY_LPD_PRESENT=%s", info->water_detected? "true": "false");
+			"POWER_SUPPLY_LPD_PRESENT=%s", pinfo->water_detected? "true": "false");
 
 	batt_uenvp[0] = event_string;
 	batt_uenvp[1] = NULL;
-	kobject_uevent_env(&info->battery_psy->dev.kobj, KOBJ_CHANGE, batt_uenvp);
-	chr_err("%s, lpd:%d send %s\n",__func__, info->water_detected, event_string);
+	kobject_uevent_env(&pinfo->bat_psy->dev.kobj, KOBJ_CHANGE, batt_uenvp);
+	chr_err("%s, lpd:%d send %s\n",__func__, pinfo->water_detected, event_string);
 	kfree(event_string);
 	return 0;
 }
-#endif
 
 int notify_adapter_event(struct notifier_block *notifier,
 			unsigned long evt, void *val)
@@ -5514,9 +5551,7 @@ int notify_adapter_event(struct notifier_block *notifier,
 		}
 		mtk_chgstat_notify(pinfo);
 		report_psy = boot_mode == 8 || boot_mode == 9;
-#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
-			mmi_notify_lpd_event(pinfo);
-#endif
+		mmi_notify_lpd_event(pinfo);
 		break;
 	case MTK_SINK_VBUS:
 		if (pinfo->en_cts_mode) {
