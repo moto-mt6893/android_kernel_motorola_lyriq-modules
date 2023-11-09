@@ -12,6 +12,7 @@
 #include "mtk_charger_algorithm_class.h"
 #include <linux/power_supply.h>
 #include "mtk_smartcharging.h"
+#include <linux/power/moto_chg_tcmd.h>
 
 #define CHARGING_INTERVAL 10
 #define CHARGING_FULL_INTERVAL 20
@@ -313,6 +314,8 @@ struct charger_data {
 	int input_current_limit_by_aicl;
 	int junction_temp_min;
 	int junction_temp_max;
+	int moto_chg_tcmd_ichg;
+	int moto_chg_tcmd_ibat;
 };
 
 struct mmi_ffc_zone  {
@@ -622,6 +625,7 @@ struct mtk_charger {
 	struct mmi_params	mmi;
 	struct mutex mmi_mux_lock;
 
+	struct moto_chg_tcmd_client chg_tcmd_client;
 	/* adapter switch control */
 	int protocol_state;
 	int ta_capability;
