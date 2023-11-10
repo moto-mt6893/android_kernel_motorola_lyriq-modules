@@ -399,11 +399,13 @@ struct mmi_params {
 	int			target_fcc;
 	int			target_usb;
 	struct notifier_block	chg_reboot;
+	int			min_therm_current_limit;
 	int			charge_rate;
 	bool			enable_mux;
 	struct			mmi_mux_chan mux_channel;
 	int			wls_switch_en;
 	int			wls_boost_en;
+
 };
 
 enum chg_data_idx_enum {
