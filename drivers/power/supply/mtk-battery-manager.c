@@ -1551,14 +1551,13 @@ static void mtk_battery_external_power_changed(struct power_supply *psy)
 
 			/* plug in out */
 			cur_chr_type = prop_type.intval;
-
-			if (cur_chr_type == POWER_SUPPLY_TYPE_UNKNOWN) {
-				if (bm->chr_type != POWER_SUPPLY_TYPE_UNKNOWN)
-					pr_err("%s chr plug out\n", __func__);
-			} else {
-				if (bm->chr_type == POWER_SUPPLY_TYPE_UNKNOWN)
-					bm_send_cmd(bm, MANAGER_WAKE_UP_ALGO, FG_INTR_CHARGER_IN);
-			}
+		}
+		if (cur_chr_type == POWER_SUPPLY_TYPE_UNKNOWN) {
+			if (bm->chr_type != POWER_SUPPLY_TYPE_UNKNOWN)
+				pr_err("%s chr plug out\n", __func__);
+		} else {
+			if (bm->chr_type == POWER_SUPPLY_TYPE_UNKNOWN)
+				bm_send_cmd(bm, MANAGER_WAKE_UP_ALGO, FG_INTR_CHARGER_IN);
 		}
 
 		if (bm->gm1->vbat0_flag != vbat0.intval) {
