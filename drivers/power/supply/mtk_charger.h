@@ -399,6 +399,7 @@ struct mmi_params {
 	int			target_fcc;
 	int			target_usb;
 	struct notifier_block	chg_reboot;
+	int			charge_rate;
 	bool			enable_mux;
 	struct			mmi_mux_chan mux_channel;
 	int			wls_switch_en;
@@ -481,6 +482,7 @@ struct mtk_charger {
 	struct info_notifier_block ta_nb[MAX_TA_IDX];
 	struct adapter_device *ufcs_adapter;
 	struct mutex pd_lock;
+	int pd_type;
 	struct mutex ufcs_lock;
 	struct mutex ta_lock;
 
@@ -630,18 +632,6 @@ struct mtk_charger {
 	int protocol_state;
 	int ta_capability;
 	int wait_times;
-};
-
-/*********************
- * MMI Functionality *
- *********************/
-enum {
-	POWER_SUPPLY_CHARGE_RATE_NONE = 0,
-	POWER_SUPPLY_CHARGE_RATE_NORMAL,
-	POWER_SUPPLY_CHARGE_RATE_WEAK,
-	POWER_SUPPLY_CHARGE_RATE_TURBO,
-	POWER_SUPPLY_CHARGE_RATE_TURBO_30W,
-	POWER_SUPPLY_CHARGE_RATE_HYPER,
 };
 
 static inline int mtk_chg_alg_notify_call(struct mtk_charger *info,
