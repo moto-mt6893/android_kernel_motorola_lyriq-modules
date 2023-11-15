@@ -622,6 +622,11 @@ static void mtk_charger_parse_dt(struct mtk_charger *info,
 			DEFAULT_ALG);
 		info->fast_charging_indicator = DEFAULT_ALG;
 	}
+	/* meta mode*/
+	if ((info->bootmode == 1) ||(info->bootmode == 5)) {
+		info->config = SINGLE_CHARGER;
+		info->fast_charging_indicator = DEFAULT_ALG;
+	}
 	/*	adapter priority */
 	if (of_property_read_u32(np, "adapter-priority", &val)>= 0)
 		info->setting.adapter_priority = val;
