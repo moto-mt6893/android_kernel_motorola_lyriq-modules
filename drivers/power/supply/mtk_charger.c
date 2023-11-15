@@ -2988,6 +2988,7 @@ static int mtk_charger_plug_out(struct mtk_charger *info)
 	info->lst_dpdmov_stat = false;
 	info->power_path_en = true;
 	info->en_power_path = true;
+	info->mmi.active_fast_alg = 0;
 
 	pdata1->usb_input_current_limit = -1;
 	pdata1->pd_input_current_limit = -1;
