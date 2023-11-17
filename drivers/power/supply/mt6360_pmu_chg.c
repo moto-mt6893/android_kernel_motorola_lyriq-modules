@@ -333,7 +333,9 @@ struct mt6360_chg_info {
 	struct work_struct pe_work;
 	u8 ctd_dischg_status;
 	/* otg_vbus */
-	struct regulator_dev *otg_rdev;	};
+	struct regulator_dev *otg_rdev;
+	int mmi_chg_status;
+};
 
 /* for recive bat oc notify */
 struct mt6360_chg_info *g_mci;
@@ -2007,8 +2009,15 @@ static int mt6360_do_event(struct charger_device *chg_dev, u32 event,
 
 	switch (event) {
 	case EVENT_FULL:
+		mci->mmi_chg_status = POWER_SUPPLY_STATUS_FULL;
+		power_supply_changed(mci->psy);
+		break;
 	case EVENT_RECHARGE:
+		mci->mmi_chg_status = POWER_SUPPLY_STATUS_CHARGING;
+		power_supply_changed(mci->psy);
+		break;
 	case EVENT_DISCHARGE:
+		mci->mmi_chg_status = POWER_SUPPLY_STATUS_DISCHARGING;
 		power_supply_changed(mci->psy);
 		break;
 	default:
@@ -2038,6 +2047,7 @@ static int mt6360_plug_out(struct charger_device *chg_dev)
 	int ret = 0;
 
 	dev_dbg(mci->dev, "%s\n", __func__);
+	mci->mmi_chg_status = POWER_SUPPLY_STATUS_DISCHARGING;
 	ret = mt6360_enable_wdt(mci, false);
 	if (ret < 0) {
 		dev_dbg(mci->dev, "%s: disable wdt failed\n", __func__);
@@ -2910,6 +2920,10 @@ static int mt6360_charger_get_property(struct power_supply *psy,
 			val->intval = 500000;
 		break;
 	case POWER_SUPPLY_PROP_STATUS:
+		if(mci->mmi_chg_status == POWER_SUPPLY_STATUS_FULL) {
+			val->intval = POWER_SUPPLY_STATUS_FULL;
+			break;
+		}
 		ret = mt6360_charger_get_online(mci, &pwr_rdy);
 		ret |= __mt6360_is_enabled(mci, &chg_en);
 		ret |= mt6360_get_charging_status(mci, &chg_stat);
