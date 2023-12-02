@@ -190,6 +190,7 @@ struct mtk_dsi {
 #if IS_ENABLED(CONFIG_DRM_MEDIATEK_AUTO_YCT)
 	enum drm_connector_status connect_status;
 #endif
+	bool moto_sysfs_add_done;
 };
 
 enum dsi_porch_type;
