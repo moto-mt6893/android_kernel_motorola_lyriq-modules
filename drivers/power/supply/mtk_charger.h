@@ -421,7 +421,7 @@ struct mmi_params {
 	struct			mmi_mux_chan mux_channel;
 	int			wls_switch_en;
 	int			wls_boost_en;
-
+	int			typec_rp_max_current;
 };
 
 enum chg_data_idx_enum {
