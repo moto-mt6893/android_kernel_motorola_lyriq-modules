@@ -2091,6 +2091,27 @@ enum SET_BL_EXT_TYPE {
 	DISABLE_DYN_ELVSS,
 };
 
+/* panel feature */
+typedef enum {
+    PARAM_HBM = 0,
+    PARAM_CABC,
+    PARAM_ACL,
+    PARAM_DC,
+    POWER_MODE_MAX_NUM,
+    PARAM_COLOR = POWER_MODE_MAX_NUM,
+    PARAM_MAX_NUM
+} paramId_t;
+
+struct panel_param_info {
+	paramId_t param_idx;
+	uint32_t value;
+};
+
+#define DRM_SET_PANEL_FEATURE	(DRM_COMMAND_END -1)
+#define DRM_IOCTL_SET_PANEL_FEATURE          DRM_IOWR(DRM_SET_PANEL_FEATURE, struct panel_param_info)
+#define DRM_GET_PANEL_FEATURE	(DRM_COMMAND_END-2)
+#define DRM_IOCTL_GET_PANEL_FEATURE          DRM_IOWR(DRM_GET_PANEL_FEATURE, struct panel_param_info)
+
 #define DRM_IOCTL_MTK_HDMI_GET_DEV_INFO     DRM_IOWR(DRM_COMMAND_BASE + \
 		DRM_MTK_HDMI_GET_DEV_INFO, struct mtk_dispif_info)
 #define DRM_IOCTL_MTK_HDMI_AUDIO_ENABLE     DRM_IOWR(DRM_COMMAND_BASE + \
