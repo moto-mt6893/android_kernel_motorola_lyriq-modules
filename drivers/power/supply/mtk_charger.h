@@ -428,6 +428,7 @@ struct mmi_params {
 	int			pd_cap_max_watt;
 	int			vbus_h;
 	int			vbus_l;
+	int			charger_watt;
 };
 
 enum chg_data_idx_enum {
