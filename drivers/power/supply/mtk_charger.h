@@ -422,6 +422,12 @@ struct mmi_params {
 	int			wls_switch_en;
 	int			wls_boost_en;
 	int			typec_rp_max_current;
+
+	int			pd_pmax_mw;
+	struct adapter_auth_data	apdo_cap;
+	int			pd_cap_max_watt;
+	int			vbus_h;
+	int			vbus_l;
 };
 
 enum chg_data_idx_enum {
