@@ -28,6 +28,11 @@
 
 #define DRM_DISPLAY_NAME_LEN 128
 
+#define BRIGHTNESS_HBM_ON		0xFFFFFFFE
+#define BRIGHTNESS_HBM_OFF		(BRIGHTNESS_HBM_ON - 1)
+#define BRIGHTNESS_HBM_ON_SKIP_BL	(BRIGHTNESS_HBM_ON - 2)
+#define HBM_BRIGHTNESS(value) ((value) == 0 ? BRIGHTNESS_HBM_OFF : BRIGHTNESS_HBM_ON)
+
 struct mtk_dsi;
 struct cmdq_pkt;
 struct mtk_panel_para_table {
@@ -515,6 +520,13 @@ enum DISPLAY_MODE {
 	DISPLAY_MODE_NUM,
 };
 
+enum panel_hbm_type {
+	HBM_MODE_DCS_ONLY = 0,
+	HBM_MODE_DCS_GPIO,
+	HBM_MODE_DCS_I2C,
+};
+
+
 struct mtk_panel_params {
 	unsigned int prefetch_time;
 	unsigned int pll_clk;
@@ -623,6 +635,10 @@ struct mtk_panel_params {
 	bool b_send_pps_per_frame;
 	unsigned char pps[128];
 #endif
+	bool check_panel_feature;
+
+	int max_bl_level;
+	enum panel_hbm_type hbm_type;
 };
 
 struct mtk_panel_ext {
@@ -769,6 +785,10 @@ struct mtk_panel_funcs {
 	void (*lcm_valid_roi)(struct mtk_panel_params *ext_param,
 		unsigned int *x, unsigned int *y, unsigned int *w, unsigned int *h);
 	int (*get_lcm_power_state)(struct drm_panel *panel);
+
+	int (*panel_feature_set)(struct drm_panel *panel, void *dsi_drv,
+		    dcs_grp_write_gce cb, void *handle, struct panel_param_info param_info);
+	int (*panel_feature_get)(struct drm_panel *panel, struct panel_param_info *param_info);
 };
 
 void mtk_panel_init(struct mtk_panel_ctx *ctx);
