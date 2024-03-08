@@ -10058,6 +10058,7 @@ static int mtk_drm_ioctl_set_panel_feature(struct drm_device *dev, void *data,
 			case PARAM_HBM:
 				if (comp && comp->funcs && comp->funcs->io_cmd && (param_info->value ==2))
 					comp->funcs->io_cmd(comp, NULL, PANEL_HBM_WAITFOR_FPS_VALID, &timeout);
+				ret = mtk_drm_crtc_set_panel_feature(crtc, *param_info);
 				break;
 			default:
 				ret = mtk_drm_crtc_set_panel_feature(crtc, *param_info);
