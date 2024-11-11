@@ -90,6 +90,7 @@ obj-$(CONFIG_DRM_PANEL_SERDES) += panel-serdes-max96789.o bridge-serdes-max96789
 obj-$(CONFIG_DRM_PANEL_NT37707_C2V_ARP) += panel-nt37707-c2v-arp.o
 obj-$(CONFIG_DRM_PANEL_NT51021H_WUXGA_VDO_BOE) += panel-nt51021h-wuxga-vdo-boe.o
 obj-$(CONFIG_DRM_PANEL_N11A_42_02_0A_DSC_VDO) += panel-n11a-42-02-0a-dsc-vdo.o
+obj-$(CONFIG_DRM_PANEL_TM_VTDR6115_655_FHD_VDO_144HZ_V1) += dsi-panel-mot-tm-vtdr6115-655-fhdp-video-144hz-v1.o
 mediatek-drm-gateic-y := mtk_drm_panel_i2c.o \
 		  mtk_drm_gateic_rt4801h.o \
 		  mtk_drm_gateic_rt4831a.o \
