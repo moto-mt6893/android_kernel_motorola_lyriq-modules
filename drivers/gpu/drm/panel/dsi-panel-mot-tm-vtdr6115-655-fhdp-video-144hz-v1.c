@@ -24,6 +24,7 @@
 #include <linux/of_graph.h>
 #include <linux/platform_device.h>
 
+#include "../mediatek/mediatek_v2/mtk_panel_ext.h"
 #define CONFIG_MTK_PANEL_EXT
 #if defined(CONFIG_MTK_PANEL_EXT)
 #include "../mediatek/mediatek_v2/mtk_panel_ext.h"
@@ -490,8 +491,8 @@ static struct mtk_panel_params ext_params_60hz = {
 
 // 	.panel_ver = 1,
 // 	.panel_id = 0x010b1591,
-// 	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-// 	.panel_supplier = "tianma-vtdr6115",
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
 
 // 	.check_panel_feature = 1,
 	.dyn = {
@@ -593,8 +594,7 @@ static struct mtk_panel_params ext_params_90hz = {
 
 	// .panel_ver = 1,
 	// .panel_id = 0x010b1591,
-	// .panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-	// .panel_supplier = "tianma-vtdr6115",
+
 
 	// .check_panel_feature = 1,
 	.dyn = {
@@ -608,6 +608,8 @@ static struct mtk_panel_params ext_params_90hz = {
 	.data_rate = 1156,
 	.lfr_enable = 1,
 	.lfr_minimum_fps = 60,
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
 };
 static struct mtk_panel_params ext_params_120hz = {
 	// .pll_clk = DISP_PLL_CLK,
@@ -696,8 +698,8 @@ static struct mtk_panel_params ext_params_120hz = {
 
 	// .panel_ver = 1,
 	// .panel_id = 0x010b1591,
-	// .panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-	// .panel_supplier = "tianma-vtdr6115",
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
 
 	// .check_panel_feature = 1,
 	.dyn = {
@@ -798,8 +800,8 @@ static struct mtk_panel_params ext_params_144hz = {
 
 	// .panel_ver = 1,
 	// .panel_id = 0x010b1591,
-	// .panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-	// .panel_supplier = "tianma-vtdr6115",
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
 
 	// .check_panel_feature = 1,
 	.dyn = {

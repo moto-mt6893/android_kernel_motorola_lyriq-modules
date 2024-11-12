@@ -1105,9 +1105,13 @@ def get_overlay_modules_list():
         #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/utag:utags")
     if "lyriq" in DEFCONFIG_OVERLAYS:
         #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/misc/fpc_fps_mmi:fpc_mtk_tee")
-        #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/sensors:sensors_class")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/sensors:sensors_class")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/mmi_info:mmi_info")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/mmi_relay:mmi_relay")
         mgk_64_device_modules.append("drivers/gpu/drm/panel/dsi-panel-mot-tm-vtdr6115-655-fhdp-video-144hz-v1.ko")
         mgk_64_device_modules.append("drivers/gpu/drm/panel/dsi-panel-mot-boe-nt37701a-655-fhdp-video-144hz.ko")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/touchscreen/goodix_berlin_u_mmi:goodix_brl_u_mmi")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/touchscreen/touchscreen_u_mmi:touchscreen_u_mmi")
     if "auto.config" in DEFCONFIG_OVERLAYS:
         mgk_64_platform_device_modules.update({"drivers/clk/mediatek/clk-mt6991-ivi.ko":"mt6991"})
         mgk_64_platform_device_modules.update({"drivers/soc/mediatek/mtk-scpsys-mt6991-ivi.ko":"mt6991"})

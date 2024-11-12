@@ -16,7 +16,7 @@
 	#size-cells = <0>;
 	pinctrl-names = "default", "gt9896s_int_active",
 		"gt9896s_reset_active", "gt9896s_int_suspend",
-		"gt9896s_reset_suspend", "gt9896s_spi_mode";
+		"gt9896s_reset_suspend", "gt9916s_spi_mode";
 	pinctrl-0 = <&ctp_gt9896s_pins_default>;
 	pinctrl-1 = <&ctp_gt9896s_int_active>;
 	pinctrl-2 = <&ctp_gt9896s_reset_active>;
@@ -33,6 +33,7 @@
 		pinctrl-1 = <&ctp_gt9896s_int_suspend &ctp_gt9896s_reset_suspend>;
 		spi-max-frequency = <9600000>;  /* 4800000,9600000,15000000,19200000 */
 		goodix,iovdd-name = "vtouch";
+		goodix,panel-supplier = "boe","tianma";
 		vtouch-supply = <&mt_pmic_vtp_ldo_reg>;
 		goodix,reset-gpio = <&pio 20 0x0>;
 		goodix,irq-gpio = <&pio 21 0x0>;

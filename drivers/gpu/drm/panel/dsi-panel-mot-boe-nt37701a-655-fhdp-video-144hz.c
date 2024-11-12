@@ -24,6 +24,7 @@
 #include <linux/of_graph.h>
 #include <linux/platform_device.h>
 
+#include "../mediatek/mediatek_v2/mtk_panel_ext.h"
 #define CONFIG_MTK_PANEL_EXT
 #if defined(CONFIG_MTK_PANEL_EXT)
 #include "../mediatek/mediatek_v2/mtk_panel_ext.h"
@@ -1150,6 +1151,8 @@ static struct mtk_panel_params ext_params_60hz = {
 		.data_rate = 440,
 	},
 	.data_rate = 440,
+	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
+	.panel_supplier = "boe-nt37701a",
 
 	// .use_ext_panel_feature = 1,
 };
@@ -1271,7 +1274,8 @@ static struct mtk_panel_params ext_params_90hz = {
 		.data_rate = 630,
 	},
 	.data_rate = 630,
-
+	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
+	.panel_supplier = "boe-nt37701a",
 	// .use_ext_panel_feature = 1,
 };
 static struct mtk_panel_params ext_params_120hz = {
@@ -1392,7 +1396,8 @@ static struct mtk_panel_params ext_params_120hz = {
 		.data_rate = 820,
 	},
 	.data_rate = 820,
-
+	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
+	.panel_supplier = "boe-nt37701a",
 	// .use_ext_panel_feature = 1,
 };
 
@@ -1514,6 +1519,8 @@ static struct mtk_panel_params ext_params_144hz = {
 		.data_rate = 1000,
 	},
 	.data_rate = 1000,
+	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
+	.panel_supplier = "boe-nt37701a",
 
 	// .use_ext_panel_feature = 1,
 };
