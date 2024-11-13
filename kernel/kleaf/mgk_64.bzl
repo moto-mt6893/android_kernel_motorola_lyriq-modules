@@ -1115,6 +1115,8 @@ def get_overlay_modules_list():
         mgk_64_device_modules.append("drivers/misc/mediatek/typec/mux/fsa4480-i2c.ko")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/touchscreen/goodix_berlin_u_mmi:goodix_brl_u_mmi")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/touchscreen/touchscreen_u_mmi:touchscreen_u_mmi")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/nfc/nxpI2C:nxp_i2c")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/nfc/nxpese:nxp_ese")
     if "auto.config" in DEFCONFIG_OVERLAYS:
         mgk_64_platform_device_modules.update({"drivers/clk/mediatek/clk-mt6991-ivi.ko":"mt6991"})
         mgk_64_platform_device_modules.update({"drivers/soc/mediatek/mtk-scpsys-mt6991-ivi.ko":"mt6991"})
