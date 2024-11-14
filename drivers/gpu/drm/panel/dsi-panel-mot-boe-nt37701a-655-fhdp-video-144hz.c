@@ -1337,27 +1337,41 @@ static int panel_ext_reset(struct drm_panel *panel, int on)
 
 	return 0;
 }
+struct drm_display_mode *get_mode_by_id(struct drm_connector *connector,
+	unsigned int mode)
+{
+	struct drm_display_mode *m;
+	unsigned int i = 0;
+
+	list_for_each_entry(m, &connector->modes, head) {
+		if (i == mode)
+			return m;
+		i++;
+	}
+	return NULL;
+}
 
 static int mtk_panel_ext_param_set(struct drm_panel *panel,
 			struct drm_connector *connector, unsigned int mode)
 {
 	struct mtk_panel_ext *ext = find_panel_ext(panel);
 	struct lcm *ctx = panel_to_lcm(panel);
+	struct drm_display_mode *m = get_mode_by_id(connector, mode);
 	int ret = 0;
 
-	if (mode == 0) {
+	if (drm_mode_vrefresh(m) == 60) {
 		ext->params = &ext_params_60hz;
 		ctx->current_fps = 60;
 	}
-	else if (mode == 1) {
+	else if (drm_mode_vrefresh(m) == 144) {
 		ext->params = &ext_params_144hz;
 		ctx->current_fps = 144;
 	}
-	else if (mode == 2) {
+	else if (drm_mode_vrefresh(m) == 120) {
 		ext->params = &ext_params_120hz;
 		ctx->current_fps = 120;
 	}
-	else if (mode == 3) {
+	else if (drm_mode_vrefresh(m) == 90) {
 		ext->params = &ext_params_90hz;
 		ctx->current_fps = 90;
 	}
@@ -1366,7 +1380,7 @@ static int mtk_panel_ext_param_set(struct drm_panel *panel,
 
 	return ret;
 }
-#if 0 //guoqr1 bingup
+
 #ifndef LCM_VDO_MODE
 static void mode_switch_to_144(struct drm_panel *panel,
 	enum MTK_PANEL_MODE_SWITCH_STAGE stage)
@@ -1409,24 +1423,25 @@ static void mode_switch_to_60(struct drm_panel *panel,
 		mdelay(11);
 	}
 }
-
-static int mode_switch(struct drm_panel *panel, unsigned int cur_mode,
+static int mode_switch(struct drm_panel *panel,
+		struct drm_connector *connector, unsigned int cur_mode,
 		unsigned int dst_mode, enum MTK_PANEL_MODE_SWITCH_STAGE stage)
 {
 	int ret = 0;
+	struct drm_display_mode *m = get_mode_by_id(connector, dst_mode);
 
 	if (cur_mode == dst_mode)
 		return ret;
 
 	pr_info("%s: mode switch to %d\n", __func__, dst_mode);
 
-    if (dst_mode == 0) { /*switch to 60 */
+    if (drm_mode_vrefresh(m) == 60) { /*switch to 60 */
 		mode_switch_to_60(panel, stage);
-	} else if (dst_mode == 3) { /*switch to 60 */
+	} else if (drm_mode_vrefresh(m) == 90) { /*switch to 60 */
 		mode_switch_to_90(panel, stage);
-	} else if (dst_mode == 2) { /*switch to 120 */
+	} else if (drm_mode_vrefresh(m) == 120) { /*switch to 120 */
 		mode_switch_to_120(panel, stage);
-	} else if (dst_mode == 1) { /*switch to 144 */
+	} else if (drm_mode_vrefresh(m) == 144) { /*switch to 144 */
 		mode_switch_to_144(panel, stage);
 	} else
 		ret = 1;
@@ -1434,7 +1449,7 @@ static int mode_switch(struct drm_panel *panel, unsigned int cur_mode,
 	return ret;
 }
 #endif
-#endif //guoqr1 bringup
+
 #if 0 //guoqr1
 static struct mtk_panel_para_table panel_lhbm_on[] = {
 	{3, {0x51, 0x0F, 0xFF}},
@@ -1646,7 +1661,7 @@ static struct mtk_panel_funcs ext_funcs = {
 	// .ata_check = panel_ata_check,
 	.ext_param_set = mtk_panel_ext_param_set,
 #ifndef LCM_VDO_MODE
-	// .mode_switch = mode_switch,
+	.mode_switch = mode_switch,
 #endif
 	// .panel_feature_set = panel_feature_set,
 	// .panel_hbm_waitfor_fps_valid = panel_hbm_waitfor_fps_valid,
