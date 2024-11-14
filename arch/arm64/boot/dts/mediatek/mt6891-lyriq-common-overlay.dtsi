@@ -589,4 +589,10 @@
 &mmc1 {
     status = "disabled";
 };
+
+/* Trustonic Mobicore real driver */
+&mobicore {
+    trustonic,real-drv = <1>;
+};
+
 /*End of this file, DO NOT ADD ANYTHING HERE*/
