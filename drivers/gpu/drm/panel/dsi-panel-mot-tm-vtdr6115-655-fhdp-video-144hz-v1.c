@@ -456,56 +456,22 @@ static struct mtk_panel_params ext_params_60hz = {
 		.rc_tgt_offset_hi = 3,
 		.rc_tgt_offset_lo = 3,
 
-		// .pps_list = {
-		// 	.count = 3,
-		// 	.dsc_pps_params[0] = {
-		// 		.dsc_pps_idx = 17,
-		// 		.dsc_pps_para = 0xD1E9D9C9,
-		// 	},
-		// 	.dsc_pps_params[1] = {
-		// 		.dsc_pps_idx = 18,
-		// 		.dsc_pps_para = 0xD20DD1E9,
-		// 	},
-		// 	.dsc_pps_params[2] = {
-		// 		.dsc_pps_idx = 19,
-		// 		.dsc_pps_para = 0x0000D230,
-		// 	},
-		// },
 	},
-//guoqr1 driveronly remove
-	// .max_bl_level = 3514,
-	// .hbm_type = HBM_MODE_DCS_ONLY,
-// 	.dyn_fps = {
-// 		.switch_en = 1,
-// 		// .dfps_cmd_grp_table[0] = {2, {0x6c, 0x00} },
-// 		// .dfps_cmd_grp_table[1] = {2, {0x62, 0x00} },
-// 		// .dfps_cmd_grp_size = 2,
-// 	},
-// //guoqr1
-// 	.data_rate = DISP_PLL_CLK * 2,
-// 	.change_fps_by_vfp_send_cmd = 1,
 
-// 	.panel_cellid_reg = 0x5a,
-// 	.panel_cellid_offset_reg = 0x65,
-// 	.panel_cellid_len = 23,
-
-// 	.panel_ver = 1,
-// 	.panel_id = 0x010b1591,
-	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-	.panel_supplier = "tianma-vtdr6115",
-
-// 	.check_panel_feature = 1,
-	.dyn = {
-		.switch_en = 0,
-		.data_rate = 1156,
-	},
 	.dyn_fps = {
 		.switch_en = 0,
 		.vact_timing_fps = 60,
+		.data_rate = 1156,
 	},
+
+	.panel_cellid_reg = 0x5a,
+	.panel_cellid_offset_reg = 0x65,
+	.panel_cellid_len = 23,
 	.data_rate = 1156,
-	.lfr_enable = 1,
-	.lfr_minimum_fps = 60,
+	.panel_ver = 1,
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
+
 };
 
 static struct mtk_panel_params ext_params_90hz = {
@@ -557,57 +523,19 @@ static struct mtk_panel_params ext_params_90hz = {
 		.rc_tgt_offset_hi = 3,
 		.rc_tgt_offset_lo = 3,
 
-		// .pps_list = {
-		// 	.count = 3,
-		// 	.dsc_pps_params[0] = {
-		// 		.dsc_pps_idx = 17,
-		// 		.dsc_pps_para = 0xD1E9D9C9,
-		// 	},
-		// 	.dsc_pps_params[1] = {
-		// 		.dsc_pps_idx = 18,
-		// 		.dsc_pps_para = 0xD20DD1E9,
-		// 	},
-		// 	.dsc_pps_params[2] = {
-		// 		.dsc_pps_idx = 19,
-		// 		.dsc_pps_para = 0x0000D230,
-		// 	},
-		// },
 	},
-	// .max_bl_level = 3514,
-//guoqr1 driveronly remove
-	// .hbm_type = HBM_MODE_DCS_ONLY,
-	// .dyn_fps = {
-	// 	.switch_en = 1,
-	// 	.dfps_cmd_grp_table[0] = {2, {0x6c, 0x01} },
-	// 	.dfps_cmd_grp_table[1] = {2, {0x62, 0x01} },
-	// 	.dfps_cmd_grp_table[2] = {3, {0xf0, 0xaa, 0x10} },
-	// 	.dfps_cmd_grp_table[3] = {14, {0xB1,0x01,0x54,0x00,0x18,0x0D,0x98,0x00,0x01,0x54,0x00,0x18,0x05,0xE8} },
-	// 	.dfps_cmd_grp_size = 4,
-	// },
-//guoqr1
-	// .data_rate = DISP_PLL_CLK * 2,
-	// .change_fps_by_vfp_send_cmd = 1,
 
-	// .panel_cellid_reg = 0x5a,
-	// .panel_cellid_offset_reg = 0x65,
-	// .panel_cellid_len = 23,
-
-	// .panel_ver = 1,
-	// .panel_id = 0x010b1591,
-
-
-	// .check_panel_feature = 1,
-	.dyn = {
-		.switch_en = 0,
-		.data_rate = 1156,
-	},
 	.dyn_fps = {
 		.switch_en = 0,
 		.vact_timing_fps = 90,
+		.data_rate = 1156,
 	},
+
+	.panel_cellid_reg = 0x5a,
+	.panel_cellid_offset_reg = 0x65,
+	.panel_cellid_len = 23,
 	.data_rate = 1156,
-	.lfr_enable = 1,
-	.lfr_minimum_fps = 60,
+	.panel_ver = 1,
 	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
 	.panel_supplier = "tianma-vtdr6115",
 };
@@ -660,59 +588,20 @@ static struct mtk_panel_params ext_params_120hz = {
 		.rc_tgt_offset_hi = 3,
 		.rc_tgt_offset_lo = 3,
 
-		// .pps_list = {
-		// 	.count = 3,
-		// 	.dsc_pps_params[0] = {
-		// 		.dsc_pps_idx = 17,
-		// 		.dsc_pps_para = 0xD1E9D9C9,
-		// 	},
-		// 	.dsc_pps_params[1] = {
-		// 		.dsc_pps_idx = 18,
-		// 		.dsc_pps_para = 0xD20DD1E9,
-		// 	},
-		// 	.dsc_pps_params[2] = {
-		// 		.dsc_pps_idx = 19,
-		// 		.dsc_pps_para = 0x0000D230,
-		// 	},
-		// },
-	},
-	// .max_bl_level = 3514,
-//guoqr1 driveronly remove
-	// .hbm_type = HBM_MODE_DCS_ONLY,
-
-	// .dyn_fps = {
-	// 	.switch_en = 1,
-	// 	.dfps_cmd_grp_table[0] = {2, {0x6c, 0x01} },
-	// 	.dfps_cmd_grp_table[1] = {2, {0x62, 0x00} },
-	// 	.dfps_cmd_grp_table[2] = {3, {0xf0, 0xaa, 0x10} },
-	// 	.dfps_cmd_grp_table[3] = {14, {0xB1,0x01,0x54,0x00,0x18,0x0D,0x98,0x00,0x01,0x54,0x00,0x18,0x02,0x10} },
-	// 	.dfps_cmd_grp_size = 4,
-	// },
-//guoqr1
-	// .data_rate = DISP_PLL_CLK * 2,
-	// .change_fps_by_vfp_send_cmd = 1,
-
-	// .panel_cellid_reg = 0x5a,
-	// .panel_cellid_offset_reg = 0x65,
-	// .panel_cellid_len = 23,
-
-	// .panel_ver = 1,
-	// .panel_id = 0x010b1591,
-	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-	.panel_supplier = "tianma-vtdr6115",
-
-	// .check_panel_feature = 1,
-	.dyn = {
-		.switch_en = 0,
-		.data_rate = 1156,
 	},
 	.dyn_fps = {
 		.switch_en = 0,
 		.vact_timing_fps = 120,
+		.data_rate = 1156,
 	},
+
+	.panel_cellid_reg = 0x5a,
+	.panel_cellid_offset_reg = 0x65,
+	.panel_cellid_len = 23,
 	.data_rate = 1156,
-	.lfr_enable = 1,
-	.lfr_minimum_fps = 60,
+	.panel_ver = 1,
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
 };
 
 static struct mtk_panel_params ext_params_144hz = {
@@ -764,57 +653,20 @@ static struct mtk_panel_params ext_params_144hz = {
 		.rc_tgt_offset_hi = 3,
 		.rc_tgt_offset_lo = 3,
 
-		// .pps_list = {
-		// 	.count = 3,
-		// 	.dsc_pps_params[0] = {
-		// 		.dsc_pps_idx = 17,
-		// 		.dsc_pps_para = 0xD1E9D9C9,
-		// 	},
-		// 	.dsc_pps_params[1] = {
-		// 		.dsc_pps_idx = 18,
-		// 		.dsc_pps_para = 0xD20DD1E9,
-		// 	},
-		// 	.dsc_pps_params[2] = {
-		// 		.dsc_pps_idx = 19,
-		// 		.dsc_pps_para = 0x0000D230,
-		// 	},
-		// },
-	},
-	// .max_bl_level = 3514,
-//guoqr1 driveronly remove
-	// .hbm_type = HBM_MODE_DCS_ONLY,
-
-	// .dyn_fps = {
-	// 	.switch_en = 1,
-	// 	.dfps_cmd_grp_table[0] = {2, {0x6c, 0x02} },
-	// 	.dfps_cmd_grp_table[1] = {2, {0x62, 0x00} },
-	// 	.dfps_cmd_grp_size = 2,
-	// },
-//guoqr1
-	// .data_rate = DISP_PLL_CLK * 2,
-	// .change_fps_by_vfp_send_cmd = 1,
-
-	// .panel_cellid_reg = 0x5a,
-	// .panel_cellid_offset_reg = 0x65,
-	// .panel_cellid_len = 23,
-
-	// .panel_ver = 1,
-	// .panel_id = 0x010b1591,
-	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
-	.panel_supplier = "tianma-vtdr6115",
-
-	// .check_panel_feature = 1,
-	.dyn = {
-		.switch_en = 0,
-		.data_rate = 1156,
 	},
 	.dyn_fps = {
 		.switch_en = 0,
 		.vact_timing_fps = 144,
+		.data_rate = 1156,
 	},
+
+	.panel_cellid_reg = 0x5a,
+	.panel_cellid_offset_reg = 0x65,
+	.panel_cellid_len = 23,
 	.data_rate = 1156,
-	.lfr_enable = 1,
-	.lfr_minimum_fps = 60,
+	.panel_ver = 1,
+	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
+	.panel_supplier = "tianma-vtdr6115",
 };
 #if 0
 static int panel_ata_check(struct drm_panel *panel)
