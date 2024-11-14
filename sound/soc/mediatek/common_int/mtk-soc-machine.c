@@ -758,6 +758,13 @@ static struct snd_soc_dai_link mt_soc_extspk_dai[] = {
 	{
 		.name = "ext_Speaker_Multimedia",
 		.stream_name = MT_SOC_SPEAKER_STREAM_NAME,
+		#if IS_ENABLED(CONFIG_SND_SMARTPA_AW882XX)
+		.cpu_dai_name = "snd-soc-dummy-dai",
+		.platform_name = "snd-soc-dummy",
+		.codecs = awinic_codecs,
+		.num_codecs = ARRAY_SIZE(awinic_codecs),
+		.ops = &cs35l35_ops,
+		#endif
 		SND_SOC_DAILINK_REG(ext_speaker_multimedia),
 	},
 	{

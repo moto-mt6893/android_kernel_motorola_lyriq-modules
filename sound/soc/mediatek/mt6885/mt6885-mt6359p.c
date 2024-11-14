@@ -70,6 +70,21 @@ static int mt6885_spk_type_get(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+#ifdef CONFIG_SND_SMARTPA_AW882XX
+static struct snd_soc_dai_link_component awinic_codecs[] = {
+        {
+                .name = "aw882xx_smartpa.6-0035",
+                .of_node = NULL,
+                .dai_name = "aw882xx-aif-6-35",
+        },
+        {
+                .name = "aw882xx_smartpa.6-0034",
+                .of_node = NULL,
+                .dai_name = "aw882xx-aif-6-34",
+        },
+};
+#endif
+
 static int mt6885_spk_i2s_out_type_get(struct snd_kcontrol *kcontrol,
 				       struct snd_ctl_elem_value *ucontrol)
 {
@@ -634,7 +649,9 @@ SND_SOC_DAILINK_DEFS(ap_dmic_ch34,
 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
 SND_SOC_DAILINK_DEFS(i2s0,
 	DAILINK_COMP_ARRAY(COMP_CPU("I2S0")),
-	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	#if IS_ENABLED(CONFIG_SND_SMARTPA_AW882XX)
+	DAILINK_COMP_ARRAY(COMP_CODEC("aw882xx_smartpa.6-0035", "aw882xx-aif-6-35"),COMP_CODEC("aw882xx_smartpa.6-0034", "aw882xx-aif-6-34")),
+	#endif
 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
 SND_SOC_DAILINK_DEFS(i2s1,
 	DAILINK_COMP_ARRAY(COMP_CPU("I2S1")),
@@ -646,7 +663,9 @@ SND_SOC_DAILINK_DEFS(i2s2,
 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
 SND_SOC_DAILINK_DEFS(i2s3,
 	DAILINK_COMP_ARRAY(COMP_CPU("I2S3")),
-	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	#if IS_ENABLED(CONFIG_SND_SMARTPA_AW882XX)
+	DAILINK_COMP_ARRAY(COMP_CODEC("aw882xx_smartpa.6-0035", "aw882xx-aif-6-35"),COMP_CODEC("aw882xx_smartpa.6-0034", "aw882xx-aif-6-34")),
+	#endif
 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
 SND_SOC_DAILINK_DEFS(i2s5,
 	DAILINK_COMP_ARRAY(COMP_CPU("I2S5")),

@@ -1,6 +1,5 @@
 &sound {
-    compatible = "mediatek,mt6885-mt6359-sound";
-    mediatek,audio-codec = <&mt6359_snd>;
+    compatible = "mediatek,mt6885-mt6359p-sound";
     mediatek,platform = <&afe>;
     mediatek,snd_audio_dsp = <&snd_audio_dsp>;
     mtk_spk_i2s_out = <3>;
@@ -40,11 +39,5 @@
 
 };
 
-&i2c9 {
-    fsa4480_switch: fsa4480@42 {
-        compatible = "fsa,fsa4480-i2c";
-        reg = <0x42>;
-        status = "okay";
-    };
-};
+
 
