@@ -1506,7 +1506,7 @@ cpus {
 			interrupts = <GIC_SPI 74 IRQ_TYPE_EDGE_RISING 0>;
 			mediatek,key-debounce-ms = <1024>;
 			mediatek,hw-map-num = <72>;
-			mediatek,hw-init-map = <114 0 0 0 0 0 0 0 0 0 0 0 0
+			mediatek,hw-init-map = <115 0 0 0 0 0 0 0 0 0 0 0 0
 						0 0 0 0 0 0 0 0 0 0 0 0 0 0
 						0 0 0 0 0 0 0 0 0 0 0 0 0 0
 						0 0 0 0 0 0 0 0 0 0 0 0 0 0
