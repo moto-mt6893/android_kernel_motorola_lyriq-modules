@@ -62,11 +62,11 @@ struct lcm {
 	struct gpio_desc *reset_gpio;
 	bool prepared;
 	bool enabled;
-	// bool lhbm_en; //guoqr1
+	bool lhbm_en;
 
 	int error;
-	// unsigned int hbm_mode;
-	// unsigned int dc_mode;
+	unsigned int hbm_mode;
+	unsigned int dc_mode;
 	unsigned int current_bl;
 	enum panel_version version;
 	unsigned int current_fps;
@@ -330,9 +330,9 @@ static int lcm_prepare(struct drm_panel *panel)
 	pr_info("%s+\n", __func__);
 	if (ctx->prepared)
 		return 0;
-//guoqr1
-	// ctx->hbm_mode = 0;
-	// ctx->dc_mode = 0;
+
+	ctx->hbm_mode = 0;
+	ctx->dc_mode = 0;
 
 	ret = panel_ext_init_power(panel);
 	if (ret < 0) goto error;
@@ -1305,12 +1305,12 @@ static int lcm_setbacklight_cmdq(void *dsi, dcs_write_gce cb, void *handle,
 {
 	char bl_tb0[] = { 0x51, 0x0f, 0xff};
 	struct lcm *ctx = boe_ctx;
-//guoqr1
-	// if (ctx->hbm_mode) {
-	// 	pr_info("hbm_mode = %d, skip backlight(%d)\n", ctx->hbm_mode, level);
-	// 	ctx->current_bl = level;
-	// 	return 0;
-	// }
+
+	if (ctx->hbm_mode) {
+		pr_info("hbm_mode = %d, skip backlight(%d)\n", ctx->hbm_mode, level);
+		ctx->current_bl = level;
+		return 0;
+	}
 
 	if (!(ctx->current_bl && level)) pr_info("backlight changed from %u to %u\n", ctx->current_bl, level);
 	else pr_info("backlight changed from %u to %u\n", ctx->current_bl, level);
@@ -1450,7 +1450,7 @@ static int mode_switch(struct drm_panel *panel,
 }
 #endif
 
-#if 0 //guoqr1
+
 static struct mtk_panel_para_table panel_lhbm_on[] = {
 	{3, {0x51, 0x0F, 0xFF}},
 	{4, {0x87, 0x1F, 0xFF, 0x05}},
@@ -1466,7 +1466,7 @@ static void set_lhbm_alpha(unsigned int bl_level, uint32_t on)
 	struct mtk_panel_para_table *pAlphaTable;
 	struct mtk_panel_para_table *pDbvTable;
 	unsigned int alpha = 0;
-	unsigned int dbv = 0;
+	// unsigned int dbv = 0;
 
 	if(on) {
 		pAlphaTable = &panel_lhbm_on[1];
@@ -1597,6 +1597,29 @@ static int panel_feature_set(struct drm_panel *panel, void *dsi,
 	return 0;
 }
 
+static int panel_feature_get(struct drm_panel *panel, struct panel_param_info *param_info)
+{
+	struct lcm *ctx = panel_to_lcm(panel);
+	int ret = 0;
+
+	switch (param_info->param_idx) {
+		case PARAM_CABC:
+		case PARAM_ACL:
+			ret = -1;
+			break;
+		case PARAM_HBM:
+			param_info->value = ctx->hbm_mode;
+			break;
+		case PARAM_DC:
+			param_info->value = ctx->dc_mode;
+			break;
+		default:
+			ret = -1;
+			break;
+	}
+	return ret;
+}
+
 static int panel_hbm_waitfor_fps_valid(struct drm_panel *panel, unsigned int timeout_ms)
 {
 	struct lcm *ctx = panel_to_lcm(panel);
@@ -1620,7 +1643,7 @@ static int panel_hbm_waitfor_fps_valid(struct drm_panel *panel, unsigned int tim
 	pr_info("%s-, fps = %d \n", __func__, ctx->current_fps);
 	return 0;
 }
-# endif //guoqr1 bingup
+
 
 static int panel_ext_init_power(struct drm_panel *panel)
 {
@@ -1663,8 +1686,9 @@ static struct mtk_panel_funcs ext_funcs = {
 #ifndef LCM_VDO_MODE
 	.mode_switch = mode_switch,
 #endif
-	// .panel_feature_set = panel_feature_set,
-	// .panel_hbm_waitfor_fps_valid = panel_hbm_waitfor_fps_valid,
+	.panel_feature_get = panel_feature_get,
+	.panel_feature_set = panel_feature_set,
+	.panel_hbm_waitfor_fps_valid = panel_hbm_waitfor_fps_valid,
 };
 
 static int lcm_get_modes(struct drm_panel *panel,
@@ -1822,14 +1846,14 @@ static int lcm_probe(struct mipi_dsi_device *dsi)
 		return ret;
 
 #endif
-//guoqr1
-	// ctx->hbm_mode = 0;
-	// ctx->dc_mode = 0;
+
+	ctx->hbm_mode = 0;
+	ctx->dc_mode = 0;
 	ctx->current_fps = 120;
 
-	// ctx->lhbm_en = of_property_read_bool(dev->of_node, "lhbm-enable");
+	ctx->lhbm_en = of_property_read_bool(dev->of_node, "lhbm-enable");
 
-	// pr_info("######## %s- lcm,boe, nt37701,cmd,120hz, lhbm_en = %d\n", __func__, ctx->lhbm_en);
+	pr_info("######## %s- lcm,boe, nt37701,cmd,120hz, lhbm_en = %d\n", __func__, ctx->lhbm_en);
 
 	return ret;
 }

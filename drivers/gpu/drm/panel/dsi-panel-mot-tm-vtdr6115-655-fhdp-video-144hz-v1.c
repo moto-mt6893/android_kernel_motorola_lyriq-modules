@@ -65,11 +65,11 @@ struct lcm {
 	struct gpio_desc *reset_gpio;
 	bool prepared;
 	bool enabled;
-	// bool lhbm_en; //guoqr1
+	bool lhbm_en;
 
 	int error;
-	// unsigned int hbm_mode;
-	// unsigned int dc_mode;
+	unsigned int hbm_mode;
+	unsigned int dc_mode;
 	unsigned int current_bl;
 	enum panel_version version;
 	unsigned int current_fps;
@@ -298,9 +298,9 @@ static int lcm_prepare(struct drm_panel *panel)
 	if (ctx->prepared)
 		return 0;
 
-	// ctx->hbm_mode = 0;
-	// ctx->dc_mode = 0;
-	// ctx->current_fps = 120;
+	ctx->hbm_mode = 0;
+	ctx->dc_mode = 0;
+	ctx->current_fps = 120;
 	ret = panel_ext_init_power(panel);
 	if (ret < 0) goto error;
 
@@ -681,10 +681,10 @@ static int lcm_setbacklight_cmdq(void *dsi, dcs_write_gce cb, void *handle,
 	char bl_tb0[] = { 0x51, 0x0f, 0xff};
 	struct lcm *ctx = g_ctx;
 
-	// if ((ctx->hbm_mode) && level) {
-	// 	pr_info("hbm_mode = %d, skip backlight(%d)\n", ctx->hbm_mode, level);
-	// 	return 0;
-	// }
+	if ((ctx->hbm_mode) && level) {
+		pr_info("hbm_mode = %d, skip backlight(%d)\n", ctx->hbm_mode, level);
+		return 0;
+	}
 
 	if (!(ctx->current_bl && level)) pr_info("backlight changed from %u to %u\n", ctx->current_bl, level);
 	else pr_debug("backlight changed from %u to %u\n", ctx->current_bl, level);
@@ -826,7 +826,6 @@ static int mode_switch(struct drm_panel *panel, unsigned int cur_mode,
 }
 #endif
 
-# if 0 //guoqr1 driveronly
 static struct mtk_panel_para_table panel_lhbm_bright_on[] = {
 	{3, {0xf0, 0xaa, 0x13}},
 	{2, {0xc6, 0x01}},
@@ -1052,7 +1051,6 @@ static int panel_hbm_waitfor_fps_valid(struct drm_panel *panel, unsigned int tim
 	pr_info("%s-, fps = %d \n", __func__, ctx->current_fps);
 	return 0;
 }
-# endif //guoqr1 driveronly
 
 static int panel_ext_init_power(struct drm_panel *panel)
 {
@@ -1092,9 +1090,9 @@ static struct mtk_panel_funcs ext_funcs = {
 	// .power_down = panel_ext_powerdown,
 	// .ata_check = panel_ata_check,
 	.ext_param_set = mtk_panel_ext_param_set,
-	// .panel_feature_set = panel_feature_set,
-	// .panel_feature_get = panel_feature_get,
-	// .panel_hbm_waitfor_fps_valid = panel_hbm_waitfor_fps_valid,
+	.panel_feature_set = panel_feature_set,
+	.panel_feature_get = panel_feature_get,
+	.panel_hbm_waitfor_fps_valid = panel_hbm_waitfor_fps_valid,
 };
 
 static int lcm_get_modes(struct drm_panel *panel,
@@ -1241,13 +1239,13 @@ static int lcm_probe(struct mipi_dsi_device *dsi)
 		return ret;
 
 #endif
-	// ctx->hbm_mode = 0;
-	// ctx->dc_mode = 0;
+	ctx->hbm_mode = 0;
+	ctx->dc_mode = 0;
 	ctx->current_fps = 120;
 
-	// ctx->lhbm_en = of_property_read_bool(dev->of_node, "lhbm-enable");
+	ctx->lhbm_en = of_property_read_bool(dev->of_node, "lhbm-enable");
 
-	// pr_info("%s- lcm,tm, vtdr6115,cmd,120hz, lhbm_en = %d\n", __func__, ctx->lhbm_en);
+	pr_info("%s- lcm,tm, vtdr6115,cmd,120hz, lhbm_en = %d\n", __func__, ctx->lhbm_en);
 
 	return ret;
 }
