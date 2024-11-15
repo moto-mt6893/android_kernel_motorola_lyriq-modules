@@ -1101,8 +1101,8 @@ mgk_64_platform_device_user_modules = {
 
 
 def get_overlay_modules_list():
-    #if "moto" in DEFCONFIG_OVERLAYS:
-        #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/utag:utags")
+    if "moto" in DEFCONFIG_OVERLAYS:
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/utag:utags")
     if "lyriq" in DEFCONFIG_OVERLAYS:
         #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/misc/fpc_fps_mmi:fpc_mtk_tee")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/sensors:sensors_class")
