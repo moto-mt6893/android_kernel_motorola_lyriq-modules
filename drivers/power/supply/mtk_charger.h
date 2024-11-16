@@ -121,6 +121,18 @@ enum mmi_mux_channel {
 	MMI_MUX_CHANNEL_MAX
 };
 
+struct mmi_mux_chan {
+	enum mmi_mux_channel chan;
+	bool on;
+};
+
+struct mmi_mux_configure {
+	u32 typec_mos;
+	u32 wls_mos;
+	bool wls_boost_en;
+	bool wls_loadswtich_en;
+};
+
 enum bat_temp_state_enum {
 	BAT_TEMP_LOW = 0,
 	BAT_TEMP_NORMAL,
@@ -300,6 +312,93 @@ struct charger_data {
 	int input_current_limit_by_aicl;
 	int junction_temp_min;
 	int junction_temp_max;
+};
+
+struct mmi_ffc_zone  {
+	int		temp;
+	int		ffc_max_mv;
+	int		ffc_chg_iterm;
+};
+
+struct mmi_temp_zone {
+	int		temp_c;
+	int		norm_mv;
+	int		fcc_max_ma;
+	int		fcc_norm_ma;
+};
+
+#define MAX_NUM_STEPS 10
+enum mmi_temp_zones {
+	ZONE_FIRST = 0,
+	/* states 0-9 are reserved for zones */
+	ZONE_LAST = MAX_NUM_STEPS + ZONE_FIRST - 1,
+	ZONE_HOT,
+	ZONE_COLD,
+	ZONE_NONE = 0xFF,
+};
+
+enum mmi_chrg_step {
+	STEP_MAX,
+	STEP_NORM,
+	STEP_FULL,
+	STEP_FLOAT,
+	STEP_DEMO,
+	STEP_STOP,
+	STEP_NONE = 0xFF,
+};
+
+enum charging_limit_modes {
+	CHARGING_LIMIT_OFF,
+	CHARGING_LIMIT_RUN,
+	CHARGING_LIMIT_UNKNOWN,
+};
+
+struct mmi_params {
+	bool			init_done;
+	bool			factory_mode;
+	int			demo_mode;
+	bool			demo_discharging;
+
+	bool			factory_kill_armed;
+
+	/*adaptive charging*/
+	bool adaptive_charging_disable_ichg;
+	bool adaptive_charging_disable_ibat;
+	bool charging_enable_hz;
+	bool battery_charging_disable;
+
+	/* Charge Profile */
+	int			num_temp_zones;
+	struct mmi_temp_zone	*temp_zones;
+	enum mmi_temp_zones	pres_temp_zone;
+	enum mmi_chrg_step	pres_chrg_step;
+	int			chrg_taper_cnt;
+	int			temp_state;
+	int			chrg_iterm;
+
+	int			num_ffc_zones;
+	struct mmi_ffc_zone	*ffc_zones;
+
+	bool			enable_charging_limit;
+	bool			is_factory_image;
+	enum charging_limit_modes	charging_limit_modes;
+	int			upper_limit_capacity;
+	int			lower_limit_capacity;
+	int			base_fv_mv;
+	int			vfloat_comp_mv;
+	int			batt_health;
+	int			max_chrg_temp;
+
+	/*target parameter*/
+	int			target_fv;
+	bool			chg_disable;
+	int			target_fcc;
+	int			target_usb;
+	struct notifier_block	chg_reboot;
+	bool			enable_mux;
+	struct			mmi_mux_chan mux_channel;
+	int			wls_switch_en;
+	int			wls_boost_en;
 };
 
 enum chg_data_idx_enum {
@@ -518,6 +617,9 @@ struct mtk_charger {
 	/* enable boot volt*/
 	bool enable_boot_volt;
 	bool reset_boot_volt_times;
+
+	struct mmi_params	mmi;
+	struct mutex mmi_mux_lock;
 
 	/* adapter switch control */
 	int protocol_state;

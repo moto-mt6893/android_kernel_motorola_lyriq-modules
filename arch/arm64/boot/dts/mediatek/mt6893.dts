@@ -830,9 +830,11 @@
 		vbus-supply = <&otg_vbus>;
 		vbus-voltage = <5000000>;
 		vbus-current = <1800000>;
+		vbus-limit-current = <500000>;
 		charger = <&mt6360_chg>;
 		tcpc = "type_c_port0";
 		mediatek,bypss-typec-sink = <1>;
+		mediatek,u2;
 		port {
 			usb_role: endpoint@0 {
 				remote-endpoint = <&mtu3_drd_switch>;

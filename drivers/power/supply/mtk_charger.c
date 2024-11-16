@@ -66,6 +66,7 @@
 #include "mtk_charger.h"
 #include "mtk_battery.h"
 #include "mtk_charger_algorithm_class.h"
+#include <linux/of_gpio.h>
 
 struct tag_bootmode {
 	u32 size;
@@ -3992,6 +3993,7 @@ static int mtk_charger_probe(struct platform_device *pdev)
 {
 	struct mtk_charger *info = NULL;
 	int i;
+	int rc = 0;
 	char *name = NULL;
 
 	chr_err("%s: starts\n", __func__);
@@ -4008,6 +4010,7 @@ static int mtk_charger_probe(struct platform_device *pdev)
 	mutex_init(&info->charger_lock);
 	mutex_init(&info->pd_lock);
 	mutex_init(&info->ta_lock);
+	mutex_init(&info->mmi_mux_lock);
 	for (i = 0; i < CHG2_SETTING + 1; i++) {
 		mutex_init(&info->pp_lock[i]);
 		info->force_disable_pp[i] = false;
@@ -4212,6 +4215,30 @@ static int mtk_charger_probe(struct platform_device *pdev)
 	/* 9 = LOW_POWER_OFF_CHARGING_BOOT */
 	if (info != NULL && info->bootmode != 8 && info->bootmode != 9)
 		mtk_charger_force_disable_power_path(info, CHG1_SETTING, true);
+
+	info->mmi.enable_mux =
+		of_property_read_bool((&info->pdev->dev)->of_node, "mmi,enable-mux");
+
+	info->mmi.wls_switch_en = of_get_named_gpio((&info->pdev->dev)->of_node, "mmi,mux_wls_switch_en", 0);
+	if(!gpio_is_valid(info->mmi.wls_switch_en))
+		chr_err("mmi wls_switch_en is %d invalid\n", info->mmi.wls_switch_en );
+
+	info->mmi.wls_boost_en = of_get_named_gpio((&info->pdev->dev)->of_node, "mmi,mux_wls_boost_en", 0);
+	if(!gpio_is_valid(info->mmi.wls_boost_en))
+		chr_err("mmi wls_boost_en is %d invalid\n", info->mmi.wls_boost_en);
+
+	if(gpio_is_valid(info->mmi.wls_switch_en)) {
+		rc  = devm_gpio_request_one(&info->pdev->dev, info->mmi.wls_switch_en,
+				  GPIOF_OUT_INIT_LOW, "mux_wls_switch_en");
+		if (rc  < 0)
+			chr_err(" [%s] Failed to request wls_switch_en gpio, ret:%d", __func__, rc);
+	}
+	if(gpio_is_valid(info->mmi.wls_boost_en)) {
+		rc  = devm_gpio_request_one(&info->pdev->dev, info->mmi.wls_boost_en,
+				  GPIOF_OUT_INIT_LOW, "mux_wls_boost_en");
+		if (rc  < 0)
+			chr_err(" [%s] Failed to request wls_boost_en gpio, ret:%d", __func__, rc);
+	}
 
 	kthread_run(charger_routine_thread, info, "charger_thread");
 

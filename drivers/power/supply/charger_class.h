@@ -453,6 +453,8 @@ extern int unregister_charger_device_notifier(
 				struct notifier_block *nb);
 extern int charger_dev_notify(
 	struct charger_device *charger_dev, int event);
+extern int charger_dev_config_mux(struct charger_device *chg_dev,
+	enum mmi_dvchg_mux_channel typec_mos, enum mmi_dvchg_mux_channel wls_mos);
 
 
 #endif /*LINUX_POWER_CHARGER_CLASS_H*/
