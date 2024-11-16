@@ -322,4 +322,13 @@ config CHARGER_SGM41516D
 	  and config MTK_SWCHR_SUPPORT
 	  Set to Yes if SGM41516D is used.
 
+config EXTERN_FG_MM8013
+    tristate "FG Driver for MM8013 Charger IC"
+    default n
+    depends on I2C
+    depends on IIO
+	help
+	  Say Yes to enable MM8013 driver.
+	  It is mainly used as battery gauge
+
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"

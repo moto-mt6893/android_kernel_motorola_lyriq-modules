@@ -31,6 +31,9 @@
 #include <mt-plat/aee.h>
 #endif
 
+#ifdef CONFIG_EXTERN_FG_MM8013
+extern int mmi_get_prop_from_bms(enum power_supply_property psp, union power_supply_propval *val);
+#endif
 //#define BM_NO_SLEEP
 //#define BM_USE_ALARM_TIMER
 #define BM_USE_HRTIMER
@@ -1085,22 +1088,45 @@ static int bm_update_psy_property(struct mtk_battery *gm, enum bm_psy_prop prop)
 	return ret_val;
 }
 
+#ifdef CONFIG_EXTERN_FG_MM8013
+int mmi_get_prop_from_bms(enum power_supply_property psp, union power_supply_propval *val)
+{
+	int rc;
+	struct power_supply *bms;
+
+	bms = power_supply_get_by_name("bms");
+
+	if (bms == NULL || IS_ERR(bms)) {
+		pr_err("%s Couldn't get bms\n", __func__);
+		return -EINVAL;
+	}
+
+	rc = power_supply_get_property(bms, psp, val);
+
+	return rc;
+}
+#endif
+
 static int bs_psy_get_property(struct power_supply *psy,
 	enum power_supply_property psp,
 	union power_supply_propval *val)
 {
-	int ret = 0, qmax = 0, cycle = 0;
-	int curr_now = 0;
 	int curr_avg = 0;
 	int remain_ui = 0, remain_mah = 0;
 	int time_to_full = 0;
+	struct mtk_battery_manager *bm;
+	struct battery_data *bs_data;
+#ifdef CONFIG_EXTERN_FG_MM8013
+	int ret = 0, qmax = 0;
+	union power_supply_propval prop = {0};
+#else
+	int ret = 0, qmax = 0, cycle = 0;
 	int q_max_uah = 0;
 	int volt_now = 0;
 	int count = 0;
 	int temp = 0;
-	struct mtk_battery_manager *bm;
-	struct battery_data *bs_data;
-
+	int curr_now = 0;
+#endif
 	bm = (struct mtk_battery_manager *)power_supply_get_drvdata(psy);
 	bs_data = &bm->bs_data;
 
@@ -1120,6 +1146,15 @@ static int bs_psy_get_property(struct power_supply *psy,
 		val->intval = bs_data->bat_technology;
 		break;
 	case POWER_SUPPLY_PROP_CYCLE_COUNT: //sum(cycle * qmax) / sum(qmax)
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS cycle count ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out) {
 				cycle += (bm->gm1->bat_cycle + 1) *
@@ -1134,6 +1169,7 @@ static int bs_psy_get_property(struct power_supply *psy,
 			}
 		if (qmax != 0)
 			val->intval = cycle / qmax;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY: //sum(uisoc)
 		/* 1 = META_BOOT, 4 = FACTORY_BOOT 5=ADVMETA_BOOT */
@@ -1143,14 +1179,38 @@ static int bs_psy_get_property(struct power_supply *psy,
 			val->intval = 75;
 			break;
 		}
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		if (bm->gm1->fixed_uisoc != 0xffff){
+			val->intval = bm->gm1->fixed_uisoc;
+		}else if(bm->gm1->fixed_uisoc == true) {
+			val->intval = bs_data->bat_capacity;
+		}
+		else {
+			ret = mmi_get_prop_from_bms(psp,&prop);
+			if (ret < 0) {
+				pr_err("[%s]Error getting BMS Capacity ret = %d\n", __func__, ret);
+			} else {
+				bs_data->bat_capacity = prop.intval;
+			}
+			val->intval = bs_data->bat_capacity;
+		}
+#else
 		if (bm->gm1->fixed_uisoc != 0xffff)
 			val->intval = bm->gm1->fixed_uisoc;
 		else
 			val->intval = bs_data->bat_capacity;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS Current ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out)
 				curr_now += bm_update_psy_property(bm->gm1, CURRENT_NOW);
@@ -1160,9 +1220,18 @@ static int bs_psy_get_property(struct power_supply *psy,
 
 		val->intval = curr_now * 100;
 		ret = 0;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(POWER_SUPPLY_PROP_CURRENT_NOW,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS Current ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out)
 				curr_avg += bm_update_psy_property(bm->gm1, CURRENT_AVG);
@@ -1172,9 +1241,19 @@ static int bs_psy_get_property(struct power_supply *psy,
 
 		val->intval = curr_avg * 100;
 		ret = 0;
+#endif
+
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS qmax ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out)
 				qmax += bm_update_psy_property(bm->gm1, QMAX_DESIGN);
@@ -1184,9 +1263,18 @@ static int bs_psy_get_property(struct power_supply *psy,
 
 		val->intval = qmax * 100;
 		ret = 0;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_COUNTER:
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS charge counter ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out)
 				qmax += bm_update_psy_property(bm->gm1, QMAX_DESIGN);
@@ -1195,9 +1283,18 @@ static int bs_psy_get_property(struct power_supply *psy,
 				qmax += bm_update_psy_property(bm->gm2, QMAX_DESIGN);
 
 		val->intval = bs_data->bat_capacity * qmax;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS voltage now ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		count = 0;
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out) {
@@ -1212,9 +1309,12 @@ static int bs_psy_get_property(struct power_supply *psy,
 		if (count != 0)
 			val->intval = volt_now / count * 1000;
 		ret = 0;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+		val->intval = bm->gm1->cur_bat_temp * 10;
+#else
 		count = 0;
 		if (bm->gm1 != NULL)
 			if(!bm->gm1->bat_plug_out) {
@@ -1229,6 +1329,7 @@ static int bs_psy_get_property(struct power_supply *psy,
 		if (count != 0)
 			val->intval = temp / count * 10;
 		ret = 0;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
 		val->intval = check_cap_level(bs_data->bat_capacity);
@@ -1262,6 +1363,15 @@ static int bs_psy_get_property(struct power_supply *psy,
 		ret = 0;
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS full design ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		if (check_cap_level(bs_data->bat_capacity) ==
 			POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN) {
 			val->intval = 0;
@@ -1282,7 +1392,7 @@ static int bs_psy_get_property(struct power_supply *psy,
 			q_max_uah = 100001;
 		}
 		val->intval = q_max_uah;
-
+#endif
 		break;
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
 		if (IS_ERR_OR_NULL(bs_data->chg_psy)) {
@@ -1309,7 +1419,7 @@ static int bs_psy_get_property(struct power_supply *psy,
 		break;
 		}
 
-	//pr_err("%s psp:%d ret:%d val:%d", __func__, psp, ret, val->intval);
+	pr_err("%s psp:%d ret:%d val:%d", __func__, psp, ret, val->intval);
 
 	return ret;
 }

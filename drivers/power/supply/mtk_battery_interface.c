@@ -699,6 +699,24 @@ int set_shutdown_cond(struct mtk_battery *gm, int shutdown_cond)
 
 	return 0;
 }
+#ifdef CONFIG_EXTERN_FG_MM8013
+int mmi_get_exfg_bms(enum power_supply_property psp, union power_supply_propval *val)
+{
+	int rc;
+	struct power_supply *bms;
+
+	bms = power_supply_get_by_name("bms");
+
+	if (bms == NULL || IS_ERR(bms)) {
+		pr_err("%s Couldn't get bms\n", __func__);
+		return -EINVAL;
+	}
+
+	rc = power_supply_get_property(bms, psp, val);
+
+	return rc;
+}
+#endif
 
 /* ============================================================ */
 /* power misc end*/
@@ -716,7 +734,10 @@ void battery_update(struct mtk_battery_manager *bm)
 	static int first;
 	struct battery_shutdown_unit *sdu;
 	int vbat1 = 0, vbat2 = 0, real_uisoc = 0, real_quse = 0;
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+	int ret = 0;
+	union power_supply_propval prop = {0};
+#endif
 	if (bm == NULL) {
 		pr_err("[%s]battery manager is not rdy\n",
 				__func__);
@@ -845,6 +866,15 @@ void battery_update(struct mtk_battery_manager *bm)
 	bat_data->bat_health = POWER_SUPPLY_HEALTH_GOOD;
 	bat_data->bat_present = 1;
 
+#ifdef CONFIG_EXTERN_FG_MM8013
+	ret = mmi_get_exfg_bms(POWER_SUPPLY_PROP_CAPACITY,&prop);
+	if (ret < 0) {
+		pr_err("[%s]Error getting BMS Capacity ret = %d\n", __func__, ret);
+	}
+	else {
+		bat_data->bat_capacity = prop.intval;
+	}
+#endif
 	power_supply_changed(bat_psy);
 }
 

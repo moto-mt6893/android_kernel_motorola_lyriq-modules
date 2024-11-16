@@ -1107,6 +1107,7 @@ def get_overlay_modules_list():
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/moto_f_usbnet:moto_f_usbnet")
     if "lyriq" in DEFCONFIG_OVERLAYS:
         #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/misc/fpc_fps_mmi:fpc_mtk_tee")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/power/mm8013c_fg_mmi:mm8013c_battery")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/sensors:sensors_class")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/mmi_info:mmi_info")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/mmi_relay:mmi_relay")
