@@ -39,5 +39,12 @@
 
 };
 
+&i2c9 {
+    fsa4480_switch: fsa4480@42 {
+        compatible = "fsa,fsa4480-i2c";
+        reg = <0x42>;
+        status = "okay";
+    };
+};
 
 
