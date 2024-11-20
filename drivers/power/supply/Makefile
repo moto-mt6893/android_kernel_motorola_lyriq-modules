@@ -71,3 +71,7 @@ obj-$(CONFIG_UFCS_CLASS)	+= ufcs/
 
 obj-$(CONFIG_CHARGER_BQ2589X)	+= bq2589x_charger.o
 obj-$(CONFIG_CHARGER_BQ25601) += bq25601.o
+#moto wls
+obj-$(CONFIG_MOTO_CHG_TCMD_SUPPORT) += moto_chg_tcmd.o
+obj-$(CONFIG_MOTO_WLC_ALG_SUPPORT) += moto_wlc_alg.o
+moto_wlc_alg-objs := moto_wlc.o moto_wlc_hal.o

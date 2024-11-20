@@ -331,4 +331,22 @@ config EXTERN_FG_MM8013
 	  Say Yes to enable MM8013 driver.
 	  It is mainly used as battery gauge
 
+config MOTO_CHG_TCMD_SUPPORT
+    tristate "MOTO TCMD interface driver for charger"
+	help
+	  This is to enable MOTO supports of charger TCMD INTERFACE.
+
+config MOTO_WLC_ALG_SUPPORT
+    tristate "moto wlc interface driver for charger"
+	help
+	  This is to enable MOTO supports of wlc charger INTERFACE.
+
+config DISABLE_WLC_CPS4038
+    tristate "FG Driver for CPS4038 Charger IC"
+    default n
+    depends on I2C
+    depends on IIO
+	help
+	  Say Yes to disable cps4038 some functions
+
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"

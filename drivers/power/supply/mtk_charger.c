@@ -65,6 +65,7 @@
 
 #include "mtk_charger.h"
 #include "mtk_battery.h"
+#include "mtk_charger_algorithm_class.h"
 
 struct tag_bootmode {
 	u32 size;
@@ -1069,6 +1070,9 @@ static ssize_t Charging_mode_show(struct device *dev,
 		break;
 	case PE5P_ID:
 		alg_name = "P5P";
+		break;
+	case WLC_ID:
+		alg_name = "wlc";
 		break;
 	}
 	chr_err("%s: charging_mode: %s\n", __func__, alg_name);
@@ -2758,6 +2762,19 @@ static bool charger_init_algo(struct mtk_charger *info)
 		register_chg_alg_notifier(alg, &info->chg_alg_nb);
 	}
 
+	alg = get_chg_alg_by_name("wlc");
+	info->alg[idx] = alg;
+	if (alg == NULL)
+		chr_err("get wlc fail\n");
+	else {
+		chr_err("get wlc success\n");
+		alg->config = info->config;
+		alg->alg_id = WLC_ID;
+		chg_alg_init_algo(alg);
+		register_chg_alg_notifier(alg, &info->chg_alg_nb);
+	}
+	idx++;
+
 	chr_err("config is %d\n", info->config);
 	if (info->config == DUAL_CHARGERS_IN_SERIES) {
 		info->chg2_dev = get_charger_by_name("secondary_chg");
@@ -3048,6 +3065,7 @@ static void charger_status_check(struct mtk_charger *info)
 	} else {
 		ret = power_supply_get_property(chg_psy,
 			POWER_SUPPLY_PROP_ONLINE, &online);
+			online.intval = online.intval || info->wireless_online;
 		if (ret < 0)
 			chr_debug("%s: %d\n", __func__, ret);
 		ret = power_supply_get_property(chg_psy,
@@ -3744,7 +3762,7 @@ static int psy_charger_set_property(struct power_supply *psy,
 		}
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT:
-		if (val->intval > 0)
+		if (val->intval > 0  && !info->wireless_online)
 			mtk_charger_enable_power_path(info, idx, false);
 		else
 			mtk_charger_enable_power_path(info, idx, true);
@@ -3770,9 +3788,24 @@ static void mtk_charger_external_power_changed(struct power_supply *psy)
 	union power_supply_propval prop2 = {0};
 	union power_supply_propval vbat0 = {0};
 	struct power_supply *chg_psy = NULL;
+	struct power_supply *wl_psy = NULL;
 	int ret = 0;
 
 	info = (struct mtk_charger *)power_supply_get_drvdata(psy);
+	wl_psy = power_supply_get_by_name("wireless");
+	if (wl_psy == NULL || IS_ERR(wl_psy)) {
+			chr_err("%s Couldn't get wl_psy\n", __func__);
+			prop.intval = 0;
+	} else {
+			ret = power_supply_get_property(wl_psy,
+					POWER_SUPPLY_PROP_ONLINE, &prop);
+			info->wireless_online = prop.intval;
+			if (1 == prop.intval) {
+					pr_notice("%s event, name:%s online:%d\n", __func__,
+							psy->desc->name, prop.intval);
+			}
+	}
+
 	if (info == NULL) {
 		pr_notice("%s: failed to get info\n", __func__);
 		return;

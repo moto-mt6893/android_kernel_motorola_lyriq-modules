@@ -25,6 +25,9 @@
 #define HVBP_ID  (1 << 5)
 #define PE5P_ID  (1 << 6)
 
+//Reserve some bits for MTK
+#define PEHV_ID (1 << 14)
+#define WLC_ID  (1 << 15) //0x8000
 struct chg_alg_properties {
 	const char *alias_name;
 };
@@ -125,6 +128,8 @@ struct chg_limit_setting {
 	int input_current_limit_dvchg1;
 	int charging_current_limit1;
 	int charging_current_limit2;
+	int mmi_fcc_limit;
+	int mmi_current_limit_dvchg1;
 	bool vbat_mon_en;
 	int adapter_priority;
 };
@@ -133,6 +138,8 @@ enum chg_alg_props {
 	ALG_MAX_VBUS,
 	ALG_LOG_LEVEL,
 	ALG_REF_VBAT,
+	ALG_WLC_STATE,
+	ALG_WLC_TX_MODE,
 };
 
 struct chg_alg_ops {

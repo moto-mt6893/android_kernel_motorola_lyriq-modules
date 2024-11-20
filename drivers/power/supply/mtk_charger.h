@@ -99,6 +99,26 @@ struct charger_data;
 #define USB_CURRENT_MASK 0x80000000
 #define UNLIMIT_CURRENT_MASK 0x10000000
 
+enum mmi_mux_channel {
+	MMI_MUX_CHANNEL_NONE = 0,
+	MMI_MUX_CHANNEL_TYPEC_CHG,
+	MMI_MUX_CHANNEL_TYPEC_OTG,
+	MMI_MUX_CHANNEL_WLC_CHG,
+	MMI_MUX_CHANNEL_WLC_OTG,
+	MMI_MUX_CHANNEL_TYPEC_CHG_WLC_OTG,
+	MMI_MUX_CHANNEL_TYPEC_CHG_WLC_CHG,
+	MMI_MUX_CHANNEL_TYPEC_OTG_WLC_CHG,
+	MMI_MUX_CHANNEL_TYPEC_OTG_WLC_OTG,
+	MMI_MUX_CHANNEL_WLC_FW_UPDATE,
+	MMI_MUX_CHANNEL_WLC_FACTORY_TEST,
+#ifdef CONFIG_MOTO_CHANNEL_SWITCH
+	MMI_MUX_CHANNEL_WLC_CHG_OTG,
+	MMI_MUX_CHANNEL_WLC_CHG_OTG_WLC_OTG,
+	MMI_MUX_CHANNEL_WLC_CHG_OTG_WLC_CHG,
+#endif
+	MMI_MUX_CHANNEL_MAX
+};
+
 enum bat_temp_state_enum {
 	BAT_TEMP_LOW = 0,
 	BAT_TEMP_NORMAL,
@@ -203,7 +223,7 @@ struct sw_jeita_data {
 };
 
 struct mtk_charger_algorithm {
-
+	int (*do_mux)(struct mtk_charger *info, enum mmi_mux_channel channel, bool on);
 	int (*do_algorithm)(struct mtk_charger *info);
 	int (*enable_charging)(struct mtk_charger *info, bool en);
 	int (*do_event)(struct notifier_block *nb, unsigned long ev, void *v);
@@ -288,6 +308,11 @@ enum chg_data_idx_enum {
 	HVDVCHG1_SETTING,
 	HVDVCHG2_SETTING,
 	CHGS_SETTING_MAX,
+};
+
+struct mmi_thermal_config {
+	int		temp_c;
+	int		level;
 };
 
 struct mtk_charger {
@@ -479,6 +504,7 @@ struct mtk_charger {
 	/*charger IC charging status*/
 	bool is_charging;
 	bool is_cs_chg_done;
+	int wireless_online;
 
 	ktime_t uevent_time_check;
 
