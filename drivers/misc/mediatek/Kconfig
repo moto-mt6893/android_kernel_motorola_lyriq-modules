@@ -192,6 +192,9 @@ endmenu # Tinysys
 
 menu "Debug, log, trace"
 
+config MOT_LYRIQ
+	bool "MOTO project lyriq name"
+
 config MTK_MTE_DEBUG
 	bool "Test MTE temp patch"
 	depends on ARM64_MTE

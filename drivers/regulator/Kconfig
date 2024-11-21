@@ -225,5 +225,16 @@ config DEVICE_MODULES_REGULATOR_RT6160
 	  The wide output range is from 2025mV to 5200mV and can be used on most
 	  common application scenario.
 
+config MOTO_WL2864C
+        tristate "moto wl2864C regulator driver"
+	depends on I2C && GPIOLIB
+	select REGMAP
+	select CRC8
+	select OF_GPIO
+	select REGULATOR_FIXED_VOLTAGE
+	select MTK_SUBPMIC_MISC
+	help
+	  WL2864C is an pmic chip.
+
 endif
 

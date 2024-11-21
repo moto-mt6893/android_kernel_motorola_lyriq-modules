@@ -688,6 +688,7 @@ mgk_64_device_modules = [
     "drivers/regulator/mt6379-regulator.ko",
     "drivers/regulator/mt6370-regulator.ko",
     "drivers/regulator/mt6681-regulator.ko",
+    "drivers/regulator/wl2864c-regulator.ko",
     "drivers/regulator/mtk-dvfsrc-regulator.ko",
     "drivers/regulator/mtk-extbuck-debug.ko",
     "drivers/regulator/mtk-vmm-isp71-regulator.ko",

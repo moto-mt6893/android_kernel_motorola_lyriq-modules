@@ -385,4 +385,11 @@ extern long WV511AAF_Ioctl(struct file *a_pstFile, unsigned int a_u4Command,
 extern int WV511AAF_Release(struct inode *a_pstInode, struct file *a_pstFile);
 extern int WV511AAF_GetFileName(unsigned char *pFileName);
 
+
+extern int MOT_LYRIQ_GT9764AF_SetI2Cclient(struct i2c_client *pstAF_I2Cclient,
+                                 spinlock_t *pAF_SpinLock, int *pAF_Opened);
+extern long MOT_LYRIQ_GT9764AF_Ioctl(struct file *a_pstFile, unsigned int a_u4Command,
+                           unsigned long a_u4Param);
+extern int MOT_LYRIQ_GT9764AF_Release(struct inode *a_pstInode, struct file *a_pstFile);
+extern int MOT_LYRIQ_GT9764AF_GetFileName(unsigned char *pFileName);
 #endif

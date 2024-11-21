@@ -123,6 +123,12 @@
 /************************************************************************
  *
  ************************************************************************/
+//add london sensor id start
+#define MOT_LYRIQ_OV50E_SENSOR_ID      0x565045
+#define MOT_LYRIQ_OV50A_SENSOR_ID      0x565042
+#define MOT_LYRIQ_OV32B_SENSOR_ID      0x3242
+#define MOT_LYRIQ_HI1336_SENSOR_ID      0x1337
+//add london sensor id end
 #define HI1339_SENSOR_ID                          0x1339
 #define SENSOR_DRVNAME_HI1339_MIPI_RAW            "hi1339_mipi_raw"
 #define SENSOR_DRVNAME_HI1339SUBTXD_MIPI_RAW      "hi1339subtxd_mipi_raw"
@@ -438,6 +444,12 @@
 /* CAMERA DRIVER NAME */
 #define CAMERA_HW_DEVNAME                       "kd_camera_hw"
 /* SENSOR DEVICE DRIVER NAME */
+//add london sensor drvname begin
+#define SENSOR_DRVNAME_MOT_LYRIQ_OV50E_MIPI_RAW   "mot_lyriq_ov50e_mipi_raw"
+#define SENSOR_DRVNAME_MOT_LYRIQ_OV50A_MIPI_RAW   "mot_lyriq_ov50a_mipi_raw"
+#define SENSOR_DRVNAME_MOT_LYRIQ_OV32B_MIPI_RAW   "mot_lyriq_ov32b_mipi_raw"
+#define SENSOR_DRVNAME_MOT_LYRIQ_HI1336_MIPI_RAW   "mot_lyriq_hi1336_mipi_raw"
+//add london sensor drvname end
 /*IMX*/
 #define SENSOR_DRVNAME_IMX06A_MIPI_RAW          "imx06a_mipi_raw"
 #define SENSOR_DRVNAME_IMX858_MIPI_RAW          "imx858_mipi_raw"
