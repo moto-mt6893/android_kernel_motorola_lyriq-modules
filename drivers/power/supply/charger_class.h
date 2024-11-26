@@ -23,6 +23,16 @@ enum adc_channel {
 	ADC_CHANNEL_VOUT,
 };
 
+
+enum mmi_dvchg_mux_channel {
+	MMI_DVCHG_MUX_NONE,
+	MMI_DVCHG_MUX_CHG_OPEN,
+	MMI_DVCHG_MUX_OTG_OPEN,
+	MMI_DVCHG_MUX_CLOSE,
+	MMI_DVCHG_MUX_MANUAL_OPEN,
+	MMI_DVCHG_MUX_DISABLE,
+};
+
 struct charger_properties {
 	const char *alias_name;
 };
@@ -160,6 +170,7 @@ struct charger_ops {
 	int (*set_vbusovp_alarm)(struct charger_device *dev, u32 uV);
 	int (*reset_vbusovp_alarm)(struct charger_device *dev);
 	int (*is_vbuslowerr)(struct charger_device *dev, bool *err);
+	int (*is_vbushigherr)(struct charger_device *dev, bool *err);
 	int (*init_chip)(struct charger_device *dev);
 	int (*enable_auto_trans)(struct charger_device *dev, bool en);
 	int (*set_auto_trans)(struct charger_device *dev, uint32_t uV, bool en);
@@ -219,6 +230,13 @@ struct charger_ops {
 	int (*get_property)(struct charger_device *dev,
 			    enum charger_property prop,
 			    union charger_propval *val);
+	/* mux*/
+	int (*config_mux)(struct charger_device *dev,
+			enum mmi_dvchg_mux_channel typec_mos,
+			enum mmi_dvchg_mux_channel wls_mos);
+
+	/* enable adc*/
+	int (*enable_adc)(struct charger_device *dev, bool en);
 };
 
 static inline void *charger_dev_get_drvdata(
@@ -362,6 +380,7 @@ extern int charger_dev_kick_direct_charging_wdt(
 	struct charger_device *charger_dev);
 extern int charger_dev_get_adc(struct charger_device *charger_dev,
 	enum adc_channel chan, int *min, int *max);
+extern int charger_dev_enable_adc(struct charger_device *chg_dev, bool en);
 extern int charger_dev_get_adc_accuracy(struct charger_device *charger_dev,
 	enum adc_channel chan, int *min, int *max);
 /* Prefer use charger_dev_get_adc api */

@@ -37,7 +37,7 @@ int pe50_get_log_level(void)
 #define PE50_VTA_VAR_MIN	103	/* % */
 #define PE50_ITA_TRACKING_GAP	150	/* mA */
 #define PE50_DVCHG_VBUSALM_GAP	100	/* mV */
-#define PE50_DVCHG_STARTUP_CONVERT_RATIO	210	/* % */
+#define PE50_DVCHG_STARTUP_CONVERT_RATIO	220	/* % */
 #define PE50_DVCHG_CHARGING_CONVERT_RATIO	202	/* % */
 #define PE50_VBUSOVP_RATIO	110
 #define PE50_IBUSOCP_RATIO	110
@@ -2319,9 +2319,9 @@ static int pe50_algo_ss_dvchg_with_ta_cv(struct pe50_algo_info *info)
 			goto single_dvchg_restart;
 		}
 		data->ignore_ibusucpf = true;
-		ret = pe50_enable_dvchg_charging(info, PE50_DVCHG_SLAVE, true);
+		ret = pe50_enable_dvchg_charging(info, PE50_DVCHG_MASTER, true);
 		if (ret < 0) {
-			PE50_ERR("en slave dvchg fail(%d)\n", ret);
+			PE50_ERR("en master dvchg fail(%d)\n", ret);
 			goto single_dvchg_restart;
 		}
 		ret = pe50_adjust_vta_with_ta_cv(info);
@@ -2329,9 +2329,10 @@ static int pe50_algo_ss_dvchg_with_ta_cv(struct pe50_algo_info *info)
 			PE50_ERR("adjust vta fail(%d)\n", ret);
 			goto single_dvchg_restart;
 		}
-		ret = pe50_enable_dvchg_charging(info, PE50_DVCHG_MASTER, true);
+		msleep(200);
+		ret = pe50_enable_dvchg_charging(info, PE50_DVCHG_SLAVE, true);
 		if (ret < 0) {
-			PE50_ERR("en master dvchg fail(%d)\n", ret);
+			PE50_ERR("en slave dvchg fail(%d)\n", ret);
 			goto single_dvchg_restart;
 		}
 		return 0;

@@ -500,6 +500,9 @@ int pe50_hal_get_soc(struct chg_alg_device *alg, u32 *soc)
 	union power_supply_propval val = {0,};
 	struct pe50_hal *hal = chg_alg_dev_get_drv_hal_data(alg);
 
+#ifdef CONFIG_EXTERN_FG_MM8013
+	hal->bat_psy = power_supply_get_by_name("bms");
+#endif
 	if (IS_ERR_OR_NULL(hal->bat_psy))
 		goto out;
 

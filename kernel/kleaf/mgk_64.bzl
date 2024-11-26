@@ -1109,6 +1109,7 @@ def get_overlay_modules_list():
         #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/misc/fpc_fps_mmi:fpc_mtk_tee")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/power/cps4038:cps_wls_charger_4038")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/power/mm8013c_fg_mmi:mm8013c_battery")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/power/bq25980_mmi:bq25980_mmi")
         mgk_64_device_modules.append("drivers/power/supply/moto_wlc_alg.ko")
         mgk_64_device_modules.append("drivers/power/supply/moto_chg_tcmd.ko")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/sensors:sensors_class")

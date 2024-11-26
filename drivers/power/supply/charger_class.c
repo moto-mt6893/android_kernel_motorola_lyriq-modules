@@ -488,6 +488,16 @@ int charger_dev_set_vac_ovp(struct charger_device *chg_dev, u32 uV)
 }
 EXPORT_SYMBOL(charger_dev_set_vac_ovp);
 
+int charger_dev_enable_adc(struct charger_device *chg_dev, bool en)
+{
+	if (chg_dev != NULL && chg_dev->ops != NULL &&
+	    chg_dev->ops->enable_adc)
+		return chg_dev->ops->enable_adc(chg_dev, en);
+
+	return -EOPNOTSUPP;
+}
+EXPORT_SYMBOL(charger_dev_enable_adc);
+
 int charger_dev_get_adc(struct charger_device *charger_dev,
 	enum adc_channel chan, int *min, int *max)
 {
@@ -699,6 +709,15 @@ int charger_dev_is_vbuslowerr(struct charger_device *chg_dev, bool *err)
 	return -EOPNOTSUPP;
 }
 EXPORT_SYMBOL(charger_dev_is_vbuslowerr);
+
+int charger_dev_is_vbushigherr(struct charger_device *chg_dev, bool *err)
+{
+	if (chg_dev != NULL && chg_dev->ops != NULL &&
+	    chg_dev->ops->is_vbushigherr)
+		return chg_dev->ops->is_vbushigherr(chg_dev, err);
+	return -EOPNOTSUPP;
+}
+EXPORT_SYMBOL(charger_dev_is_vbushigherr);
 
 int charger_dev_init_chip(struct charger_device *chg_dev)
 {

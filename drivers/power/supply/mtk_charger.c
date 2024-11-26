@@ -612,6 +612,13 @@ static void mtk_charger_parse_dt(struct mtk_charger *info,
 			of_property_read_bool(np, "enable_fast_charging_indicator")
 			|| of_property_read_bool(np, "enable-fast-charging-indicator");
 
+	if (of_property_read_u32(np, "fast_charging_indicator", &val) >= 0)
+		info->fast_charging_indicator = val;
+	else {
+		chr_err("use default fast_charging_indicator:%d\n",
+			DEFAULT_ALG);
+		info->fast_charging_indicator = DEFAULT_ALG;
+	}
 	/*	adapter priority */
 	if (of_property_read_u32(np, "adapter-priority", &val)>= 0)
 		info->setting.adapter_priority = val;
@@ -2917,6 +2924,12 @@ static int mtk_charger_plug_out(struct mtk_charger *info)
 	charger_dev_set_input_current(info->chg1_dev, 100000);
 	charger_dev_set_mivr(info->chg1_dev, info->data.min_charger_voltage);
 	charger_dev_plug_out(info->chg1_dev);
+
+	if (info->dvchg1_dev)
+		charger_dev_enable_adc(info->dvchg1_dev, false);
+	if (info->dvchg2_dev)
+		charger_dev_enable_adc(info->dvchg2_dev, false);
+
 	mtk_charger_force_disable_power_path(info, CHG1_SETTING, true);
 
 	if (info->enable_vbat_mon)
@@ -2964,6 +2977,11 @@ static int mtk_charger_plug_in(struct mtk_charger *info,
 	info->sc.disable_in_this_plug = false;
 
 	charger_dev_plug_in(info->chg1_dev);
+
+	if (info->dvchg1_dev)
+		charger_dev_enable_adc(info->dvchg1_dev, true);
+	if (info->dvchg2_dev)
+		charger_dev_enable_adc(info->dvchg2_dev, true);
 	mtk_charger_force_disable_power_path(info, CHG1_SETTING, false);
 
 	return 0;

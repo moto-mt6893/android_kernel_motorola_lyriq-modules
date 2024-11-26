@@ -50,6 +50,10 @@
         enable_pe_2;
         enable_sw_jeita;
 
+        /*pe5 && pdc && pe2 && wlc*/
+	fast_charging_indicator = <0x36>;
+	/*swchg + 2CP*/
+	charger_configuration= <4>;
         /* charging current */
         usb_charger_current_suspend = <0>;
         usb_charger_current_unconfigured = <70000>;
@@ -68,6 +72,17 @@
         wireless_factory_max_input_current = <600000>;
 
         //mmi config
+	mmi,typec-rp-max-current = <2000000>;
+
+	// mmi,enable-charging-limit;
+	// mmi,upper-limit-capacity = <65>;
+	// mmi,lower-limit-capacity = <60>;
+	// mmi,min-cp-therm-current-ua = <2000000>;
+
+	mmi,pd-pmax-mw = <68000>;
+	mmi,pd_vbus_low_bound = <5000000>;
+	mmi,pd_vbus_upper_bound = <9000000>;
+
         mmi,iterm-ma = <215>;
         mmi,mmi-temp-zones =
                        <0 4200 800  0>,
@@ -127,6 +142,14 @@
 	io-channel-names = "thermistor-ch5";
 	mos-en-gpio = <&pio 126 0>;
 	//enable_gpio_out;
+};
+
+&mt6360_adc{
+        interrupts = <41 0>, <43 0>, <44 0>;
+        interrupt-names = "bat_ovp_adc_evt",
+                          "adc_wakeup_evt",
+                          "adc_donei";
+        #io-channel-cells = <1>;
 };
 
 &tboard_thermistor8 {
@@ -208,17 +231,132 @@
         bootmode = <&chosen>;
 };
 */
+
 &mt6360_typec {
-	dpm_caps {
-        	/* 0: disable, 1: prefer_ufp, 2: prefer_dfp */
-        	dr_check = <0>;
+	pd-data {
+		/* 5V, 900ma */
+		pd,source-pdo-data = <0x0001905a>;
+                pd,sink-cap-ext = /bits/ 8 <0xcf 0x29 0x75 0x63
+                                                0x00 0x00 0x00 0x00
+                                                0x00 0x00 0x01 0x00
+                                                0x00 0x00 0x00 0x00
+                                                0x01 0x0b 0x01 0x0a
+                                                0x1b 0x00 0x00 0x00>;
+                /*5V, 3A  9V, 3A*/
+                pd,sink-pdo-size = <2>;
+                pd,sink-pdo-data = <0x0001912c 0x0002d12c> ;
+                pd,id-vdo-data = <0xd14029cf 0x0 0x63750000
+                                0x61000000 0x0 0x41000000>;
+	};
+	dpm-caps {
+		// attempt-discover-id;
+		// attempt-discover-svids;
+                dr-check = <0>;
 	};
 };
 
+&pe5 {
+	compatible = "mediatek,charger,pe5";
+	polling-interval = <10000>;
+	vbat-cv = <4530>;
+	start-soc-min = <0>;
+	start-soc-max = <90>;
+	idvchg-term = <500>;
+	idvchg-step = <50>;
+	ita-level = <3000 2000 1500 1000>;
+	rcable-level = <230 260 300 480>;
+	ita-level-dual = <6200 3000 2000 1500>;
+	//rcable-level-dual = <180 230 260 300>;
+	rcable-level-dual = <240 250 260 300>;//debug
+	idvchg-ss-init = <1000>;
+	idvchg-ss-step = <250>;
+	idvchg-ss-step1 = <100>;
+	idvchg-ss-step2 = <50>;
+	idvchg-ss-step1-vbat = <4000>;
+	idvchg-ss-step2-vbat = <4200>;
+	ta-blanking = <400>;
+	swchg-aicr = <0>;
+	swchg-ichg = <1200>;
+	swchg-aicr-ss-init = <400>;
+	swchg-aicr-ss-step = <200>;
+	swchg-off-vbat = <4250>;
+	force-ta-cv-vbat = <4250>;
+	chg-time-max = <10800>;
+	tta-level-def = <0 0 0 0 25 50 60 70 80>;
+	tta-curlmt = <0 0 0 0 0 0 0 0 0>;
+	tta-recovery-area = <3>;
+	tbat-level-def = <0 0 0 5 25 40 43 46 50>;
+	tbat-curlmt = <0 0 0 0 0 0 0 0 0>;
+	tbat-recovery-area = <3>;
+	tdvchg-level-def = <0 0 0 5 25 55 60 65 70>;
+	tdvchg-curlmt = <0 0 0 0 0 0 0 0 0>;
+	tdvchg-recovery-area = <3>;
+	tswchg-level-def = <0 0 0 5 25 65 70 75 80>;
+	tswchg-curlmt = <0 0 0 0 0 0 0 0 0>;
+	tswchg-recovery-area = <3>;
+	ifod-threshold = <200>;
+	rsw-min = <20>;
+	ircmp-rbat = <40>;
+	ircmp-vclamp = <0>;
+	vta-cap-min = <6800>;
+	vta-cap-max = <11000>;
+	ita-cap-min = <1000>;
+	support-ta = "pca_ta_pps", "pd_adapter";
+	allow_not_check_ta_status;
+	vbat-threshold = <4150>;
+	min-charger-voltage = <4600000>;
+	mmi_therm_cur_thres = <500>;
+	mmi_therm_vol_thres = <80>;
+	mmi_therm_step = <3>;
+	mmi_max_ibat = <12200>;
+	mmi_max_hrst_cnt = <1>;
+};
+
+&pdc {
+	compatible = "mediatek,charger,pd";
+
+	min_charger_voltage = <4600000>;
+	pd_vbus_low_bound = <5000000>;
+	pd_vbus_upper_bound = <9000000>;
+	vsys_watt = <5000000>;
+	ibus_err = <14>;
+
+	pd_stop_battery_soc = <80>;
+
+	/* single charger */
+	sc_input_current = <3000000>;
+	sc_charger_current = <3000000>;
+
+	/* dual charger in series*/
+	dcs_input_current = <3200000>;
+	dcs_chg1_charger_current = <1500000>;
+	dcs_chg2_charger_current = <1500000>;
+
+	/* dual charger */
+	dual_polling_ieoc = <450000>;
+	slave_mivr_diff = <100000>;
+	vbat_threshold = <4150>;
+};
+
 &mt6360_chg {
-       cv = <4480000>;
-       ircmp_resistor = <7000>;       /* uohm */
-       ircmp_vclamp = <32000>;         /* uV */
+        interrupts = <4 0>, <6 0>, <7 0>, <9 0>,
+                <12 0>, <13 0>, <14 0>, <15 0>,
+                <27 0>, <29 0>, <32 0>, <35 0>,
+                <40 0>, <48 0>, <60 0>;
+        interrupt-names = "chg_treg_evt", "chg_mivr_evt",
+                        "pwr_rdy_evt", "chg_batsysuv_evt",
+                        "chg_vsysuv_evt", "chg_vsysov_evt",
+                        "chg_vbatov_evt", "chg_vbusov_evt",
+                        "chg_tmri", "chg_adpbadi",
+                        "chg_aiccmeasl", "wdtmri",
+                        "pumpx_donei", "attachi",
+                        "chrdet_ext_evt";
+        bootmode = <&chosen>;
+        en_wdt = <1>;
+        bc12_sel = <0>;
+        cv = <4480000>;
+        ircmp_resistor = <7000>;       /* uohm */
+        ircmp_vclamp = <32000>;         /* uV */
 };
 
 &pio {
@@ -294,6 +432,7 @@
                 pinctrl-0 = <&bq25960_int_default>;
 
                 sc8541-addr = <0x6a>;
+                sc8541-name = "sc8541-master";
         };
 
         bq25960-slave@6c {
@@ -307,6 +446,7 @@
                 pinctrl-0 = <&bq25960_int_default_slave>;
 
                 sc8541-addr = <0x6c>;
+                sc8541-name = "sc8541-slave";
         };
 };
 
@@ -398,7 +538,8 @@
 	};
 };
 
-&charger {
+&moto_wlc {
+	compatible = "moto,charger,wlc";
 	enable_wlc;
         wlc_min_charger_voltage = <4600000>;
         wlc_max_charger_current = <3150000>;

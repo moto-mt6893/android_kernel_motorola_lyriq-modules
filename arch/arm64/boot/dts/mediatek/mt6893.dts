@@ -822,7 +822,7 @@
 		max_dmivr_charger_current = <1800000>;
 
 		/* fast charging algo support indicator */
-		enable_fast_charging_indicator;
+		// enable_fast_charging_indicator;
 	};
 
 	extcon_usb: extcon_usb {
@@ -842,6 +842,7 @@
 
 	rt-pd-manager {
 		compatible = "mediatek,rt-pd-manager";
+		nr-port = <1>;
 	};
 
 	usb_boost: usb-boost-manager {
@@ -855,6 +856,7 @@
 	pd_adapter: pd_adapter {
 		compatible = "mediatek,pd_adapter";
 		boot_mode = <&chosen>;
+		nr-port = <1>;
 		adapter_name = "pd_adapter";
 		force_cv;
 		phys = <&u2port0 PHY_TYPE_USB2>;

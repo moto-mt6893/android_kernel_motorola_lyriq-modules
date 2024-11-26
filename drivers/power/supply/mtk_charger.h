@@ -99,6 +99,8 @@ struct charger_data;
 #define USB_CURRENT_MASK 0x80000000
 #define UNLIMIT_CURRENT_MASK 0x10000000
 
+#define DEFAULT_ALG 0
+
 enum mmi_mux_channel {
 	MMI_MUX_CHANNEL_NONE = 0,
 	MMI_MUX_CHANNEL_TYPEC_CHG,
@@ -521,6 +523,18 @@ struct mtk_charger {
 	int protocol_state;
 	int ta_capability;
 	int wait_times;
+};
+
+/*********************
+ * MMI Functionality *
+ *********************/
+enum {
+	POWER_SUPPLY_CHARGE_RATE_NONE = 0,
+	POWER_SUPPLY_CHARGE_RATE_NORMAL,
+	POWER_SUPPLY_CHARGE_RATE_WEAK,
+	POWER_SUPPLY_CHARGE_RATE_TURBO,
+	POWER_SUPPLY_CHARGE_RATE_TURBO_30W,
+	POWER_SUPPLY_CHARGE_RATE_HYPER,
 };
 
 static inline int mtk_chg_alg_notify_call(struct mtk_charger *info,
