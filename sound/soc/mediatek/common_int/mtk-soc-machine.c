@@ -763,7 +763,6 @@ static struct snd_soc_dai_link mt_soc_extspk_dai[] = {
 		.platform_name = "snd-soc-dummy",
 		.codecs = awinic_codecs,
 		.num_codecs = ARRAY_SIZE(awinic_codecs),
-		.ops = &cs35l35_ops,
 		#endif
 		SND_SOC_DAILINK_REG(ext_speaker_multimedia),
 	},
