@@ -1,6 +1,8 @@
 #
 # Makefile for the kernel flashlight device drivers.
 #
+subdir-ccflags-y += -Wno-unused-variable -Wno-unused-but-set-variable
+ccflags-y += -Wno-unused-variable -Wno-unused-but-set-variable
 
 flashlight-y := flashlight-core.o
 flashlight-y += flashlight-device.o
