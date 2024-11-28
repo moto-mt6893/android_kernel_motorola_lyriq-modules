@@ -17,6 +17,7 @@ CAM_CAL_CUSTOM_SRC_PATH := $(CAM_CAL_SRC_PATH)/custom
 COMMON_VERSION := v2
 
 subdir-ccflags-y += -I$(MTK_CUSTOM_PATH)/imgsensor/inc \
+                    -I$(MTK_CUSTOM_PATH)/imgsensor/src/common/$(COMMON_VERSION) \
                     -I$(MTK_CUSTOM_PATH)/cam_cal/inc \
                     -I$(CAM_CAL_CUSTOM_SRC_PATH) \
                     -I$(CAM_CAL_SRC_PATH)/common/$(COMMON_VERSION)
