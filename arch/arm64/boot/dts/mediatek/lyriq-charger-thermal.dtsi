@@ -121,14 +121,13 @@
 	io-channel-names = "thermistor-ch3";
 };
 
-//MMI_STOPSHIP kernel: London bringup
-//&tboard_thermistor6 {
-//	compatible = "mediatek,mtboard-thermistor6";
-//	io-channels = <&adc 10>;
-//	io-channel-names = "thermistor-ch5";
-//	mos-en-gpio = <&pio 126 0>;
-//	//enable_gpio_out;
-//};
+&tboard_thermistor6 {
+	compatible = "mediatek,mtboard-thermistor6";
+	io-channels = <&mt6360_adc 10>;
+	io-channel-names = "thermistor-ch5";
+	mos-en-gpio = <&pio 126 0>;
+	//enable_gpio_out;
+};
 
 &tboard_thermistor8 {
 	compatible = "mediatek,mtboard-thermistor8";

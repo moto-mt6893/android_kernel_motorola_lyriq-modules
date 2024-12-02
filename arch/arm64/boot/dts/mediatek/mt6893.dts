@@ -90,7 +90,6 @@
 		io-channel-names = "thermistor-ch2";
 	};
 
-//MMI_STOPSHIP kernel: London bringup
 	vtskin: vtskin {
 		compatible = "mediatek,mt6893-virtual-tskin";
 
@@ -164,8 +163,6 @@
 			};
 
 		};
-
-
 
 		vtskin3{
 
