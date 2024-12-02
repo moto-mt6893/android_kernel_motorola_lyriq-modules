@@ -26,11 +26,10 @@
 #include "timesync.h"
 #include "debug.h"
 #include "custom_cmd.h"
-#include "sensor_freq.h"
 
 struct transceiver_config {
 	uint8_t length;
-	uint8_t data[] __aligned(4);
+	uint8_t data[0] __aligned(4);
 };
 
 struct transceiver_state {
@@ -147,7 +146,10 @@ static bool transceiver_wakeup_check(uint8_t action, uint8_t sensor_type)
 			sensor_type == SENSOR_TYPE_GLANCE_GESTURE ||
 			sensor_type == SENSOR_TYPE_PICK_UP_GESTURE ||
 			sensor_type == SENSOR_TYPE_STATIONARY_DETECT ||
-			sensor_type == SENSOR_TYPE_MOTION_DETECT))
+			sensor_type == SENSOR_TYPE_MOTION_DETECT ||
+			sensor_type == SENSOR_TYPE_IN_POCKET ||
+			sensor_type == SENSOR_TYPE_ANSWER_CALL ||
+			sensor_type == SENSOR_TYPE_FLAT))
 		return true;
 
 	return false;
@@ -211,7 +213,13 @@ static void transceiver_update_config(struct transceiver_device *dev,
 		 * and so on can use this branch.
 		 */
 		if (src->action == CALI_ACTION &&
-				dst->length <= sizeof(src->word))
+				dst->length <= sizeof(src->word) &&
+				((SENSOR_TYPE_LIGHT != src->sensor_type) &&
+				(SENSOR_TYPE_PROXIMITY != src->sensor_type)
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+				&& (SENSOR_TYPE_LIGHT_1 != src->sensor_type)
+#endif
+				))
 			transceiver_copy_config(dst, src, 0, dst->length, 0);
 		else
 			pr_err_ratelimited("can't update config %u %u %u\n",
@@ -251,6 +259,11 @@ static void transceiver_report(struct transceiver_device *dev,
 			/*
 			 * NOTE: only for flush ret = 0 we decrease
 			 * ret must reset to 0 for each loop
+			 * sequence:
+			 *  report thread flush fail ret < 0 then retry
+			 *   disable thread report flush success
+			 *    report thread try flush = 0 no need send
+			 *     report thread while loop because ret < 0
 			 */
 			ret = 0;
 			mutex_lock(&dev->flush_lock);
@@ -324,6 +337,9 @@ static int transceiver_translate(struct transceiver_device *dev,
 			dst->word[2] = src->value[2];
 			break;
 		case SENSOR_TYPE_LIGHT:
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+		case SENSOR_TYPE_LIGHT_1:
+#endif
 		case SENSOR_TYPE_PRESSURE:
 		case SENSOR_TYPE_PROXIMITY:
 		case SENSOR_TYPE_STEP_COUNTER:
@@ -511,16 +527,14 @@ static int transceiver_comm_with(int sensor_type, int cmd,
 {
 	int ret = 0;
 	struct sensor_comm_ctrl *ctrl = NULL;
-	uint32_t ctrl_size = 0;
 
-	ctrl_size = ipi_comm_size(sizeof(*ctrl) + length);
-	ctrl = kzalloc(ctrl_size, GFP_KERNEL);
+	ctrl = kzalloc(sizeof(*ctrl) + length, GFP_KERNEL);
 	ctrl->sensor_type = sensor_type;
 	ctrl->command = cmd;
 	ctrl->length = length;
 	if (length)
 		memcpy(ctrl->data, data, length);
-	ret = sensor_comm_ctrl_send(ctrl, ctrl_size);
+	ret = sensor_comm_ctrl_send(ctrl, sizeof(*ctrl) + ctrl->length);
 	kfree(ctrl);
 	return ret;
 }
@@ -535,26 +549,17 @@ static int transceiver_enable(struct hf_device *hf_dev,
 	state = &dev->state[sensor_type];
 	mutex_lock(&dev->enable_lock);
 	if (en) {
-		sensor_register_freq(sensor_type);
 		ret = transceiver_comm_with(sensor_type,
 			SENS_COMM_CTRL_ENABLE_CMD,
 			&state->batch, sizeof(state->batch));
 		if (ret >= 0)
 			state->enable = true;
-		else
-			sensor_deregister_freq(sensor_type);
 	} else {
 		ret = transceiver_comm_with(sensor_type,
 			SENS_COMM_CTRL_DISABLE_CMD, NULL, 0);
 		state->batch.delay = S64_MAX;
 		state->batch.latency = S64_MAX;
 		state->enable = false;
-		sensor_deregister_freq(sensor_type);
-		/*
-		 * NOTE: different from nanohub architecture(change: 2464846),
-		 * disable no need send flush, due to sensorhub architecture
-		 * can send flush when sensor disabled.
-		 */
 	}
 	mutex_unlock(&dev->enable_lock);
 	return ret;
@@ -618,10 +623,23 @@ static int transceiver_config(struct hf_device *hf_dev,
 {
 	struct transceiver_device *dev = hf_dev->private_data;
 	struct transceiver_config *cfg = NULL;
+	bool copy_config = true;
+
+	/* If the sensor is als or ps, copy config only when it's
+	 * cali data */
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	if (((SENSOR_TYPE_LIGHT == sensor_type || SENSOR_TYPE_LIGHT_1 == sensor_type) &&
+#else
+	if (((SENSOR_TYPE_LIGHT == sensor_type) &&
+#endif
+		(14 != ((uint32_t*)data)[0])) ||
+		((SENSOR_TYPE_PROXIMITY == sensor_type) &&
+		 (15 != ((uint32_t*)data)[0])))
+		copy_config = false;
 
 	mutex_lock(&dev->config_lock);
 	cfg = dev->state[sensor_type].config;
-	if (!cfg) {
+	if (copy_config && !cfg) {
 		cfg = kzalloc(sizeof(*cfg) + length, GFP_KERNEL);
 		if (!cfg) {
 			mutex_unlock(&dev->config_lock);
@@ -636,15 +654,17 @@ static int transceiver_config(struct hf_device *hf_dev,
 
 		}
 	}
-	cfg->length = length;
-	memcpy(cfg->data, data, length);
+	if (copy_config) {
+		cfg->length = length;
+		memcpy(cfg->data, data, length);
+	}
 	mutex_unlock(&dev->config_lock);
 
 	return transceiver_comm_with(sensor_type,
 		SENS_COMM_CTRL_CONFIG_CMD, data, length);
 }
 
-static int transceiver_selftest(struct hf_device *hf_dev,
+static transceiver_selftest(struct hf_device *hf_dev,
 		int sensor_type)
 {
 	return transceiver_comm_with(sensor_type,
@@ -723,8 +743,8 @@ static void transceiver_restore_sensor(struct transceiver_device *dev)
 			ret = transceiver_comm_with(sensor_type,
 				SENS_COMM_CTRL_FLUSH_CMD, NULL, 0);
 			if (ret < 0)
-				pr_err("restore flush %u remain %u fail %d\n",
-				       sensor_type, flush, ret);
+				pr_err("restore flush %u fail %d\n",
+				       sensor_type, ret);
 		}
 	}
 	mutex_unlock(&dev->flush_lock);
@@ -848,7 +868,7 @@ static int __init transceiver_init(void)
 {
 	int ret = 0;
 	struct transceiver_device *dev = &transceiver_dev;
-	struct sched_param param = { .sched_priority = MAX_RT_PRIO / 2 };
+	struct sched_param param = { .sched_priority = MAX_RT_PRIO - 1 };
 
 	mutex_init(&dev->enable_lock);
 	mutex_init(&dev->flush_lock);
@@ -937,7 +957,7 @@ static int __init transceiver_init(void)
 		pr_err("create thread fail %d\n", ret);
 		goto out_pm_notify;
 	}
-	sched_setscheduler_nocheck(dev->task, SCHED_FIFO, &param);
+	sched_setscheduler(dev->task, SCHED_FIFO, &param);
 
 	/*
 	 * NOTE: handler resgiter must before host ready to avoid lost

@@ -28,6 +28,7 @@
 #include "hf_manager.h"
 #include "sensor_list.h"
 #include "mtk_nanohub_ipi.h"
+// #include <mt-plat/mtk_boot.h> //moto add
 
 extern int __init nanohub_init(void);
 
@@ -87,11 +88,15 @@ struct mtk_nanohub_device {
 	int32_t acc_config_data[6];
 	int32_t gyro_config_data[12];
 	int32_t mag_config_data[9];
-	int32_t light_config_data[1];
-	int32_t proximity_config_data[2];
+	int32_t light_config_data[2];//moto
+	int32_t proximity_config_data[3];
 	int32_t pressure_config_data[2];
 	int32_t sar_config_data[4];
-	int32_t ois_config_data[2];
+	int32_t ois_config_data[12];
+
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	int32_t light_1_config_data[2];//moto
+#endif
 };
 
 static uint8_t rtc_compensation_suspend;
@@ -111,6 +116,7 @@ static DEFINE_SPINLOCK(config_data_lock);
 static uint8_t scp_system_ready;
 static uint8_t scp_chre_ready;
 static struct mtk_nanohub_device *mtk_nanohub_dev;
+static struct mot_params *motparams;//moto add
 
 static int mtk_nanohub_send_timestamp_to_hub(void);
 static int mtk_nanohub_server_dispatch_data(uint32_t *currWp);
@@ -588,10 +594,93 @@ static void mtk_nanohub_init_sensor_info(void)
 
 	p = &sensor_state[SENSOR_TYPE_OIS];
 	p->sensorType = SENSOR_TYPE_OIS;
-	p->gain = 1000000;
+	p->gain = 100000; /* ois data range [0, 4095], avoid int32 overflow */
 	strlcpy(p->name, "ois", sizeof(p->name));
 	strlcpy(p->vendor, "mtk", sizeof(p->vendor));
 
+//moto add
+	p = &sensor_state[SENSOR_TYPE_FLAT_UP];
+	p->sensorType = SENSOR_TYPE_FLAT_UP;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Flat Up", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_FLAT_DOWN];
+	p->sensorType = SENSOR_TYPE_FLAT_DOWN;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Flat Down", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_STOWED];
+	p->sensorType = SENSOR_TYPE_STOWED;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Stowed", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_CAMERA_ACTIVATE];
+	p->sensorType = SENSOR_TYPE_CAMERA_ACTIVATE;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Camera Gesture", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_CHOPCHOP_GESTURE];
+	p->sensorType = SENSOR_TYPE_CHOPCHOP_GESTURE;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "ChopChop", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_MOTO_GLANCE_GESTURE];
+	p->sensorType = SENSOR_TYPE_MOTO_GLANCE_GESTURE;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Moto Glance", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_LTS];
+	p->sensorType = SENSOR_TYPE_LTS;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "lift to Silence", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_FTM];
+	p->sensorType = SENSOR_TYPE_FTM;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Flip to Mute", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_LTV];
+	p->sensorType = SENSOR_TYPE_LTV;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Lift to View", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_OFFBODY];
+	p->sensorType = SENSOR_TYPE_OFFBODY;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1;
+	strlcpy(p->name, "Off Body", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_LIGHT_1];
+	p->sensorType = SENSOR_TYPE_LIGHT_1;
+	p->gain = 1;
+	strlcpy(p->name, "light_1", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
+
+	p = &sensor_state[SENSOR_TYPE_TAP];
+	p->sensorType = SENSOR_TYPE_TAP;
+	p->rate = SENSOR_RATE_ONCHANGE;
+	p->gain = 1000;
+	strlcpy(p->name, "Tap", sizeof(p->name));
+	strlcpy(p->vendor, "motorola", sizeof(p->vendor));
 }
 
 static void init_sensor_config_cmd(struct ConfigCmd *cmd,
@@ -869,9 +958,16 @@ int mtk_nanohub_enable_to_hub(uint8_t sensor_id, int enabledisable)
 	uint8_t sensor_type = id_to_type(sensor_id);
 	struct ConfigCmd cmd;
 	int ret = 0;
+	uint32_t apopen[3] = {0};//moto add
 
-	if (enabledisable == 1 && (atomic_read(&power_status) == SENSOR_POWER_UP))
+#ifdef CONFIG_SOIS_BOOST_CPU
+	if (enabledisable == 1)
+		scp_register_sensor(SENS_FEATURE_ID, sensor_type);
+#else
+	if (enabledisable == 1 && (READ_ONCE(scp_system_ready)))
 		scp_register_feature(SENS_FEATURE_ID);
+#endif
+
 	mutex_lock(&sensor_state_mtx);
 	if (sensor_id >= ID_SENSOR_MAX) {
 		pr_err("invalid id %d\n", sensor_id);
@@ -883,16 +979,44 @@ int mtk_nanohub_enable_to_hub(uint8_t sensor_id, int enabledisable)
 		mutex_unlock(&sensor_state_mtx);
 		return -1;
 	}
+
 	sensor_state[sensor_type].enable = enabledisable;
 	init_sensor_config_cmd(&cmd, sensor_type);
 	if (atomic_read(&power_status) == SENSOR_POWER_UP) {
 		ret = nanohub_external_write((const uint8_t *)&cmd,
 			sizeof(struct ConfigCmd));
+#ifdef CONFIG_SOIS_BOOST_CPU
+		if (ret < 0) {
+			if (enabledisable)
+				scp_deregister_sensor(SENS_FEATURE_ID,
+					sensor_type);
+ 			pr_err("fail enable: [%d,%d]\n", sensor_id, cmd.cmd);
+		}
+#else
 		if (ret < 0)
 			pr_err("fail enable: [%d,%d]\n", sensor_id, cmd.cmd);
+#endif
 	}
+	//moto add:AP open ps send message to tell scp
+	if(sensor_type == SENSOR_TYPE_PROXIMITY) {
+		apopen[0] = 22;
+		if (1 == enabledisable) {
+			apopen[1] = 1;
+		} else if(0 == enabledisable){
+			apopen[1] = 0;
+		}
+		pr_err("oscar ap_open proximity %d\n", enabledisable);
+		mtk_nanohub_cfg_to_hub(ID_PROXIMITY, (uint8_t *)apopen, sizeof(apopen));
+	}
+
 	if (!enabledisable)
 		mtk_nanohub_disable_report_flush(sensor_id);
+
+#ifdef CONFIG_SOIS_BOOST_CPU
+	if (enabledisable == 0)
+		scp_deregister_sensor(SENS_FEATURE_ID, sensor_type);
+#endif
+
 	mutex_unlock(&sensor_state_mtx);
 	return ret < 0 ? ret : 0;
 }
@@ -1097,6 +1221,9 @@ int mtk_nanohub_get_data_from_hub(uint8_t sensor_id,
 		data->accelerometer_t.status = data_t->accelerometer_t.status;
 		break;
 	case ID_LIGHT:
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	case ID_LIGHT_1:
+#endif
 		data->time_stamp = data_t->time_stamp;
 		data->light = data_t->light;
 		break;
@@ -1219,7 +1346,12 @@ int mtk_nanohub_set_cmd_to_hub(uint8_t sensor_id,
 		}
 		break;
 	case ID_LIGHT:
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	case ID_LIGHT_1:
+		req.set_cust_req.sensorType = (sensor_id == ID_LIGHT)?ID_LIGHT:ID_LIGHT_1;
+#else
 		req.set_cust_req.sensorType = ID_LIGHT;
+#endif
 		req.set_cust_req.action = SENSOR_HUB_SET_CUST;
 		switch (action) {
 		case CUST_ACTION_GET_RAW_DATA:
@@ -1608,6 +1740,9 @@ static void mtk_nanohub_restoring_config(void)
 	int length = 0;
 	struct mtk_nanohub_device *device = mtk_nanohub_dev;
 	uint8_t *data = NULL;
+#ifdef CONFIG_MOTO_ALSPS_NVCFG
+	uint32_t panel_info[3] = {0};
+#endif
 
 	if (unlikely(!atomic_xchg(&device->cfg_data_after_reboot, 1)))
 		return;
@@ -1643,27 +1778,54 @@ static void mtk_nanohub_restoring_config(void)
 		mtk_nanohub_cfg_to_hub(ID_MAGNETIC_FIELD, data, length);
 		vfree(data);
 	}
-
-	length = sizeof(device->light_config_data);
+//moto modify
+#ifdef CONFIG_MOTO_ALSPS_PARAMS
+	length = sizeof(struct als_custom);
 	data = vzalloc(length);
 	if (data) {
 		spin_lock(&config_data_lock);
-		memcpy(data, device->light_config_data, length);
+		memcpy(data, &motparams->alscustom, length);
 		spin_unlock(&config_data_lock);
 		mtk_nanohub_cfg_to_hub(ID_LIGHT, data, length);
 		vfree(data);
 	}
-
-	length = sizeof(device->proximity_config_data);
+	msleep(1);
+	length = sizeof(struct ps_custom);
 	data = vzalloc(length);
 	if (data) {
 		spin_lock(&config_data_lock);
-		memcpy(data, device->proximity_config_data, length);
+		memcpy(data, &motparams->pscustom, length);
 		spin_unlock(&config_data_lock);
 		mtk_nanohub_cfg_to_hub(ID_PROXIMITY, data, length);
 		vfree(data);
 	}
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_ALSPS_NVCFG
+	panel_info[0] = 2;
+	panel_info[1] = motparams->als_nvcfg.panel_id;
+	mtk_nanohub_cfg_to_hub(ID_LIGHT, (uint8_t *)panel_info, sizeof(panel_info));
+	msleep(1);
 
+	if(14 == motparams->als_nvcfg.alscfg)
+	mtk_nanohub_cfg_to_hub(ID_LIGHT, (uint8_t *)&motparams->als_nvcfg, sizeof(struct mot_als_nvcfg));
+	msleep(1);
+
+	if(15 == motparams->ps_nvcfg.pscfg)
+	mtk_nanohub_cfg_to_hub(ID_PROXIMITY, (uint8_t *)&motparams->ps_nvcfg, sizeof(struct mot_ps_nvcfg));
+	msleep(1);
+
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	panel_info[0] = 2;
+	panel_info[1] = motparams->als_nvcfg.panel_id;
+	mtk_nanohub_cfg_to_hub(ID_LIGHT_1, (uint8_t *)panel_info, sizeof(panel_info));
+	msleep(1);
+
+	if(14 == motparams->als_nvcfg.alscfg)
+	mtk_nanohub_cfg_to_hub(ID_LIGHT_1, (uint8_t *)&motparams->als_nvcfg, sizeof(struct mot_als_nvcfg));
+	msleep(1);
+#endif
+#endif
 	length = sizeof(device->pressure_config_data);
 	data = vzalloc(length);
 	if (data) {
@@ -1693,6 +1855,67 @@ static void mtk_nanohub_restoring_config(void)
 		mtk_nanohub_cfg_to_hub(ID_OIS, data, length);
 		vfree(data);
 	}
+//moto add restore algo params when scp reboot
+#ifdef CONFIG_MOTO_CHOPCHOP_PARAMS
+	length = sizeof(struct mot_chopchop);
+	data = vzalloc(length);
+	if (data) {
+		spin_lock(&config_data_lock);
+		memcpy(data, &motparams->chopchop_params, length);
+		spin_unlock(&config_data_lock);
+		mtk_nanohub_cfg_to_hub(ID_CHOPCHOP, data, length);
+		vfree(data);
+	}
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_CAMGEST_PARAMS
+	length = sizeof(struct mot_camgest);
+	data = vzalloc(length);
+	if (data) {
+		spin_lock(&config_data_lock);
+		memcpy(data, &motparams->camgest_params, length);
+		spin_unlock(&config_data_lock);
+		mtk_nanohub_cfg_to_hub(ID_CAMGEST, data, length);
+		vfree(data);
+	}
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_GLANCE_PARAMS
+	length = sizeof(struct mot_glance);
+	data = vzalloc(length);
+	if (data) {
+		spin_lock(&config_data_lock);
+		memcpy(data, &motparams->glance_params, length);
+		spin_unlock(&config_data_lock);
+		mtk_nanohub_cfg_to_hub(ID_MOT_GLANCE, data, length);
+		vfree(data);
+	}
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_LTV_PARAMS
+	length = sizeof(struct mot_ltv);
+	data = vzalloc(length);
+	if (data) {
+		spin_lock(&config_data_lock);
+		memcpy(data, &motparams->ltv_params, length);
+		spin_unlock(&config_data_lock);
+		mtk_nanohub_cfg_to_hub(ID_LTV, data, length);
+		vfree(data);
+	}
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_TAP_PARAMS
+	length = sizeof(struct mot_tap);
+	data = vzalloc(length);
+	if (data) {
+		spin_lock(&config_data_lock);
+		memcpy(data, &motparams->tap_params, length);
+		spin_unlock(&config_data_lock);
+		mtk_nanohub_cfg_to_hub(ID_TAP, data, length);
+		vfree(data);
+	}
+	msleep(1);
+#endif
 }
 
 static void mtk_nanohub_start_timesync(void)
@@ -1708,13 +1931,14 @@ static void mtk_nanohub_start_timesync(void)
 
 void mtk_nanohub_power_up_loop(void *data)
 {
-	int id = 0;
+	int ret = 0, id = 0;
 	struct mtk_nanohub_device *device = mtk_nanohub_dev;
 	unsigned long flags = 0;
 
-	wait_event(power_reset_wait,
+	ret = wait_event_interruptible(power_reset_wait,
 		READ_ONCE(scp_system_ready) && READ_ONCE(scp_chre_ready));
-
+	if (ret)
+		return;
 	pr_info("SCP power up\n");
 	spin_lock_irqsave(&scp_state_lock, flags);
 	WRITE_ONCE(scp_chre_ready, false);
@@ -1908,12 +2132,24 @@ static int mtk_nanohub_config(struct hf_device *hfdev,
 		spin_lock(&config_data_lock);
 		memcpy(device->light_config_data, data, length);
 		spin_unlock(&config_data_lock);
+		pr_err("oscar als cfg %s %d %d\n", __func__, device->light_config_data[0],device->light_config_data[1]);
 		break;
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	case ID_LIGHT_1:
+		if (sizeof(device->light_1_config_data) < length)
+			length = sizeof(device->light_1_config_data);
+		spin_lock(&config_data_lock);
+		memcpy(device->light_1_config_data, data, length);
+		spin_unlock(&config_data_lock);
+		pr_err("oscar als1 cfg %s %d %d\n", __func__, device->light_1_config_data[0],device->light_1_config_data[1]);
+		break;
+#endif
 	case ID_PROXIMITY:
 		if (sizeof(device->proximity_config_data) < length)
 			length = sizeof(device->proximity_config_data);
 		spin_lock(&config_data_lock);
 		memcpy(device->proximity_config_data, data, length);
+	    pr_err("oscar ps cfg %s %d %d %d\n", __func__, device->proximity_config_data[0],device->proximity_config_data[1],device->proximity_config_data[2]);
 		spin_unlock(&config_data_lock);
 		break;
 	case ID_PRESSURE:
@@ -1942,6 +2178,7 @@ static int mtk_nanohub_config(struct hf_device *hfdev,
 		pr_err("%s type(%d) length fail\n", __func__, sensor_type);
 		return 0;
 	}
+
 	return mtk_nanohub_cfg_to_hub(type_to_id(sensor_type),
 		(uint8_t *)data, length);
 }
@@ -2018,6 +2255,18 @@ static int mtk_nanohub_custom_cmd(struct hf_device *hfdev,
 					sizeof(device->light_config_data));
 			spin_unlock(&config_data_lock);
 			break;
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+		case SENSOR_TYPE_LIGHT_1:
+			if (sizeof(cust_cmd->data) <
+					sizeof(device->light_1_config_data))
+				return -EINVAL;
+			cust_cmd->rx_len = sizeof(device->light_1_config_data);
+			spin_lock(&config_data_lock);
+			memcpy(cust_cmd->data, device->light_1_config_data,
+					sizeof(device->light_1_config_data));
+			spin_unlock(&config_data_lock);
+			break;
+#endif
 		case SENSOR_TYPE_PROXIMITY:
 			if (sizeof(cust_cmd->data) <
 					sizeof(device->proximity_config_data))
@@ -2121,6 +2370,9 @@ static int mtk_nanohub_report_to_manager(struct data_unit_t *data)
 			event.word[5] = data->gyroscope_t.z_bias;
 			break;
 		case ID_LIGHT:
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+		case ID_LIGHT_1:
+#endif
 			event.timestamp = data->time_stamp;
 			event.sensor_type = id_to_type(data->sensor_type);
 			event.action = data->flush_action;
@@ -2192,6 +2444,8 @@ static int mtk_nanohub_report_to_manager(struct data_unit_t *data)
 			event.timestamp = data->time_stamp;
 			event.sensor_type = id_to_type(data->sensor_type);
 			event.action = data->flush_action;
+			if (data->tilt_event.state == 16)//moto
+				data->tilt_event.state = -1;
 			event.word[0] = data->tilt_event.state;
 			break;
 		case ID_SAR:
@@ -2201,6 +2455,30 @@ static int mtk_nanohub_report_to_manager(struct data_unit_t *data)
 			event.word[0] = data->sar_event.data[0];
 			event.word[1] = data->sar_event.data[1];
 			event.word[2] = data->sar_event.data[2];
+			break;
+/*moto algo ID type*/
+		case ID_STOWED:
+		case ID_FLATUP:
+		case ID_FLATDOWN:
+		case ID_CHOPCHOP:
+		case ID_MOT_GLANCE:
+		case ID_OFFBODY:
+		case ID_FTM:
+		case ID_LTS:
+			event.timestamp = data->time_stamp;
+			event.sensor_type = id_to_type(data->sensor_type);
+			event.action = data->flush_action;
+			event.word[0] = data->gesture_data_t.probability;
+			pr_err("Oscar kernel data %d\n", event.word[0]);
+			break;
+		case ID_LTV:
+		case ID_CAMGEST:
+			event.timestamp = data->time_stamp;
+			event.sensor_type = id_to_type(data->sensor_type);
+			event.action = data->flush_action;
+			event.word[0]  = data->data[0];
+			event.word[1] = data->data[1];
+			event.word[2] = data->data[2];
 			break;
 		default:
 			event.timestamp = data->time_stamp;
@@ -2288,12 +2566,24 @@ static int mtk_nanohub_report_to_manager(struct data_unit_t *data)
 			event.action = data->flush_action;
 			event.word[0] = data->data[0];
 			event.word[1] = data->data[1];
+			event.word[2] = data->data[2];//moto add
+			event.word[3] = data->data[3];
+			event.word[4] = data->data[4];
+			event.word[5] = data->data[5];
+			pr_err("oscar kernel proximity read: %d %d %d\n", event.word[0], event.word[1], event.word[2]);
 			break;
 		case ID_LIGHT:
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+		case ID_LIGHT_1:
+#endif
 			event.timestamp = data->time_stamp;
 			event.sensor_type = id_to_type(data->sensor_type);
 			event.action = data->flush_action;
 			event.word[0] = data->data[0];
+			event.word[1] = data->data[1];//moto add
+			event.word[2] = data->data[2];
+			event.word[3] = data->data[3];
+			pr_err("oscar kernel light read: %d %d %d %d\n", event.word[0], event.word[1], event.word[2],event.word[3]);
 			break;
 		case ID_PRESSURE:
 			event.timestamp = data->time_stamp;
@@ -2481,10 +2771,129 @@ err_out:
 	return count;
 }
 
-static DRIVER_ATTR_RW(trace);
+#ifdef CONFIG_MOTO_ALGO_PARAMS
+static ssize_t algo_params_store(struct device_driver *ddri,
+		const char *buf, size_t count)
+{
+	int err = 0;
+#ifdef CONFIG_MOTO_ALSPS_NVCFG
+	uint32_t panel_info[3] = {0};
+#endif
+	//SITUATION_PR_ERR("situation_store_params count=%d\n", count);
 
+	memcpy(motparams, buf, sizeof(struct mot_params));
+#ifdef CONFIG_MOTO_ALSPS_PARAMS
+	pr_err("sensor_cfg_to_hub  als_custom %d ps_custom %d\n",sizeof(struct als_custom),sizeof(struct ps_custom));
+
+	err = mtk_nanohub_cfg_to_hub(ID_LIGHT, (uint8_t *)&motparams->alscustom, sizeof(struct als_custom));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub light fail\n");
+	msleep(1);
+	err = mtk_nanohub_cfg_to_hub(ID_PROXIMITY, (uint8_t *)&motparams->pscustom, sizeof(struct ps_custom));
+	msleep(1);
+#endif
+
+#ifdef CONFIG_MOTO_ALSPS_NVCFG
+	panel_info[0] = 2;
+	panel_info[1] = motparams->als_nvcfg.panel_id;
+	err = mtk_nanohub_cfg_to_hub(ID_LIGHT, (uint8_t *)panel_info, sizeof(panel_info));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub light panel info fail\n");
+	msleep(1);
+
+	if(14 == motparams->als_nvcfg.alscfg) {
+		err = mtk_nanohub_cfg_to_hub(ID_LIGHT, (uint8_t *)&motparams->als_nvcfg, sizeof(struct mot_als_nvcfg));
+		if (err < 0)
+			pr_err("sensor_cfg_to_hub light fail\n");
+	}
+	msleep(1);
+
+	if(15 == motparams->ps_nvcfg.pscfg) {
+		err = mtk_nanohub_cfg_to_hub(ID_PROXIMITY, (uint8_t *)&motparams->ps_nvcfg, sizeof(struct mot_ps_nvcfg));
+		if (err < 0)
+			pr_err("sensor_cfg_to_hub proximity fail\n");
+	}
+	msleep(1);
+
+#ifdef CONFIG_MOTO_LIGHT_1_SENSOR
+	panel_info[0] = 2;
+	panel_info[1] = motparams->als_nvcfg.panel_id;
+	err = mtk_nanohub_cfg_to_hub(ID_LIGHT_1, (uint8_t *)panel_info, sizeof(panel_info));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub light_1 panel info fail\n");
+	msleep(1);
+
+	if(14 == motparams->als_nvcfg.alscfg) {
+		err = mtk_nanohub_cfg_to_hub(ID_LIGHT_1, (uint8_t *)&motparams->als_nvcfg, sizeof(struct mot_als_nvcfg));
+		if (err < 0)
+			pr_err("sensor_cfg_to_hub light_1 fail\n");
+	}
+	msleep(1);
+#endif
+#endif
+
+#ifdef CONFIG_MOTO_CHOPCHOP_PARAMS
+	err = mtk_nanohub_cfg_to_hub(ID_CHOPCHOP, (uint8_t *)&motparams->chopchop_params, sizeof(struct mot_chopchop));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub CHOPCHOP fail\n");
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_CAMGEST_PARAMS
+	err = mtk_nanohub_cfg_to_hub(ID_CAMGEST, (uint8_t *)&motparams->camgest_params, sizeof(struct mot_camgest));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub CAMGEST fail\n");
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_GLANCE_PARAMS
+	err = mtk_nanohub_cfg_to_hub(ID_MOT_GLANCE, (uint8_t *)&motparams->glance_params, sizeof(struct mot_glance));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub GLANCE fail\n");
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_LTV_PARAMS
+	err = mtk_nanohub_cfg_to_hub(ID_LTV, (uint8_t *)&motparams->ltv_params, sizeof(struct mot_ltv));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub LTV fail\n");
+	msleep(1);
+#endif
+#ifdef CONFIG_MOTO_TAP_PARAMS
+	err = mtk_nanohub_cfg_to_hub(ID_TAP, (uint8_t *)&motparams->tap_params, sizeof(struct mot_tap));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub TAP fail\n");
+	msleep(1);
+#endif
+	//if(get_boot_mode() == FACTORY_BOOT)
+	//	mtk_nanohub_selftest_to_hub(ID_PROXIMITY);
+	return count;
+}
+
+//moto prox cal
+static ssize_t proxcal_store(struct device_driver *ddri,
+		const char *buf, size_t count)
+{
+	int err = 0;
+	uint8_t type = (uint8_t)buf[0];
+	pr_err("sensor_cfg_to_hub proxcal type = %d\n",type);
+	err = mtk_nanohub_cfg_to_hub(ID_PROXCAL, (uint8_t *)&type, sizeof(uint8_t));
+	if (err < 0)
+		pr_err("sensor_cfg_to_hub proxcal fail\n");
+
+	return count;
+}
+#endif
+
+static DRIVER_ATTR_RW(trace);
+//moto add
+#ifdef CONFIG_MOTO_ALGO_PARAMS
+static DRIVER_ATTR_WO(algo_params);
+static DRIVER_ATTR_WO(proxcal);
+#endif
 static struct driver_attribute *mtk_nanohub_attrs[] = {
 	&driver_attr_trace,
+#ifdef CONFIG_MOTO_ALGO_PARAMS
+	&driver_attr_algo_params,//moto add
+	&driver_attr_proxcal,
+#endif
 };
 
 static int mtk_nanohub_create_attr(struct device_driver *driver)
@@ -2642,6 +3051,8 @@ static int mtk_nanohub_probe(struct platform_device *pdev)
 		pr_err("register PM notifier fail, err:%d\n", err);
 		goto exit_attr;
 	}
+//moto add
+	motparams = kzalloc(sizeof(struct mot_params), GFP_KERNEL);
 
 	pr_info("init done, data_unit_t:%d, SCP_SENSOR_HUB_DATA:%d\n",
 		(int)sizeof(struct data_unit_t),
@@ -2680,6 +3091,9 @@ static int mtk_nanohub_remove(struct platform_device *pdev)
 	scp_ipi_unregistration(IPI_SENSOR);
 	vfree(device->wp_queue.ringbuffer);
 	hf_device_unregister(&device->hf_dev);
+#ifdef CONFIG_MOTO_ALGO_PARAMS
+	kfree(motparams); //moto add
+#endif
 	kfree(device);
 	return 0;
 }
