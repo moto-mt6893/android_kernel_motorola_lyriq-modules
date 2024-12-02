@@ -2083,6 +2083,15 @@ static int __init thermal_monitor_init(void)
 		mtkts_dctm_init();
 		wmt_tm_init();
 		tsallts_init();
+
+#if IS_ENABLED(CONFIG_MTK_PLAT_POWER_6893)
+		mtkts_wtcharger_init();
+		mtkts_typec_therm_init();
+		mtkts_mbtherm_init();
+		mtkts_wchgtherm_init();
+		vtskin_init();
+#endif
+
 		return 0;
 }
 
@@ -2123,6 +2132,15 @@ static void __exit thermal_monitor_exit(void)
 	mtkts_dctm_exit();
 	wmt_tm_deinit();
 	tsallts_exit();
+
+#if IS_ENABLED(CONFIG_MTK_PLAT_POWER_6893)
+	mtkts_wtcharger_exit();
+	mtkts_typec_therm_exit();
+	mtkts_mbtherm_exit();
+	mtkts_wchgtherm_exit();
+	vtskin_exit();
+#endif
+
 }
 
 

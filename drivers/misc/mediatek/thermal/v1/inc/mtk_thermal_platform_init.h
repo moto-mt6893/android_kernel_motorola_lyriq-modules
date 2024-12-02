@@ -58,12 +58,26 @@ extern int mt6359vgpu_init(void);
 extern int mt6359tsx_init(void);
 extern int mt6359dcxo_init(void);
 extern int mtkts_btsnrpa_init(void);
+
+extern int mtkts_wtcharger_init(void);
+extern int mtkts_typec_therm_init(void);
+extern int mtkts_mbtherm_init(void);
+extern int mtkts_wchgtherm_init(void);
+extern int vtskin_init(void);
+
 extern void mt6359vcore_exit(void);
 extern void mt6359vproc_exit(void);
 extern void mt6359vgpu_exit(void);
 extern void mt6359tsx_exit(void);
 extern void mt6359dcxo_exit(void);
-extern void  mtkts_btsnrpa_exit(void);
+extern void mtkts_btsnrpa_exit(void);
+
+extern void mtkts_wtcharger_exit(void);
+extern void mtkts_typec_therm_exit(void);
+extern void mtkts_mbtherm_exit(void);
+extern void mtkts_wchgtherm_exit(void);
+extern void vtskin_exit(void);
+
 //for thermal cooler
 extern int ta_init(void);
 extern void mtk_cooler_mutt_exit(void);

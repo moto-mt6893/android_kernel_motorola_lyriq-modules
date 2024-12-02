@@ -231,16 +231,25 @@ thermal_monitor-y += v1/mtk_thermal_monitor.o
 thermal_monitor-y += common/thermal_zones/mtk_ts_imgsensor.o
 thermal_monitor-y += common/thermal_zones/mtk_ts_btsnrpa.o
 thermal_monitor-y += common/thermal_zones/mtk_ts_dctm.o
+
+thermal_monitor-y += common/thermal_zones/mtk_ts_wtcharger.o
+thermal_monitor-y += common/thermal_zones/mtk_ts_btstypc.o
+thermal_monitor-y += common/thermal_zones/mtk_ts_bqtherm.o
+thermal_monitor-y += common/thermal_zones/mtk_ts_wchgtherm.o
+
 thermal_monitor-y += common/coolers/mtk_cooler_bcct_v1.o
 ifeq ($(CONFIG_MTK_THERMAL_PA_VIA_ATCMD),y)
 thermal_monitor-y += common/coolers/mtk_cooler_mutt_gen97.o
 endif
+
 #thermal_monitor-y += v1/src/mtk_thermal_ipi.o
 thermal_monitor-y += common/thermal_zones/mtk_ts_cpu_noBankv2.o
 thermal_monitor-y += v1/src/mtk_thermal_ipi_mt6893.o
 thermal_monitor-y += v1/src/mtk_lvts_tc_mt6893.o
 thermal_monitor-y += v1/src/mtk_tc_wrapper_mt6893.o
 thermal_monitor-y += v1/src/mtk_pmic_efuse_mt6893.o
+thermal_monitor-y += v1/src/vtskin_temp.o
+
 endif
 
 ifneq ($(strip $(CONFIG_MTK_PLAT_POWER_MT6765)),)
