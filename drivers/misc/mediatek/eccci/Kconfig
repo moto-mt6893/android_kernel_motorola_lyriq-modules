@@ -61,3 +61,16 @@ config MTK_ECCCI_DEBUG_LOG
 	  Say Y here if you need dump ECID info,
 	  only be opened on userdebug load, if unsure, say N.
 	  The option default disabled.
+
+config MOTO_LYRIQ_PROJECT_SWTP_SETING_APART
+        bool "Define for Lyriq SWTP seting apart"
+        help
+          Say Y here for distinguish different projects
+
+config MOTO_DISABLE_SWTP_FACTORY
+	bool "ECCCI lyriq swtp customization"
+	help
+	  This option enables lyriq swtp customization, if yes,
+	  then it is supported, if no,
+	  it is disabled.
+	  The option default disabled.
