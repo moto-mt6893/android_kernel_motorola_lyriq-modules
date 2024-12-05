@@ -341,12 +341,4 @@ config MOTO_WLC_ALG_SUPPORT
 	help
 	  This is to enable MOTO supports of wlc charger INTERFACE.
 
-config DISABLE_WLC_CPS4038
-    tristate "FG Driver for CPS4038 Charger IC"
-    default n
-    depends on I2C
-    depends on IIO
-	help
-	  Say Yes to disable cps4038 some functions
-
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"
