@@ -7531,7 +7531,7 @@ cpus {
 				<1>, /*MTK_DRM_OPT_RPO*/
 				<0>, /*MTK_DRM_OPT_DUAL_PIPE*/
 				<0>, /*MTK_DRM_OPT_DC_BY_HRT*/
-				<1>, /*MTK_DRM_OPT_OVL_WCG*/
+				<0>, /*MTK_DRM_OPT_OVL_WCG*/
 				<0>, /*MTK_DRM_OPT_OVL_SBCH*/
 				<1>, /*MTK_DRM_OPT_COMMIT_NO_WAIT_VBLANK*/
 				<0>, /*MTK_DRM_OPT_MET*/
@@ -7722,7 +7722,7 @@ cpus {
 			ccorr-num-per-pipe = <1>;
 			ccorr-linear-per-pipe = <0x01>;
 			ccorr-prim-force-linear = <0x0>;
-			ccorr-linear = <0>;
+			ccorr-linear = <1>;
 			doze-bypass = <0x10001>;
 		};
 
@@ -7959,7 +7959,7 @@ cpus {
 			ccorr-num-per-pipe = <1>;
 			ccorr-linear-per-pipe = <0x01>;
 			ccorr-prim-force-linear = <0x0>;
-			ccorr-linear = <0>;
+			ccorr-linear = <1>;
 			doze-bypass = <0x10001>;
 		};
 
