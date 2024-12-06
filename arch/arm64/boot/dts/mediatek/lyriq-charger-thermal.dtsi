@@ -105,12 +105,8 @@
         mmi,enable-charging-limit;
         mmi,upper-limit-capacity = <65>;
         mmi,lower-limit-capacity = <60>;
-	enable_cp;
         mmi,min-cp-therm-current-ua = <1600000>;
 	mmi,enable-mux;//wireless channel switch
-	pinctrl-0 = <&mmi_mux_wls_default>;
-	mmi,mux_wls_control_en = <&pio 133 0x0>;//wlc_inhibit
-        pinctrl-names = "default";
 };
 &vtskin {
 	/delete-property/ vtskin1;
@@ -393,21 +389,6 @@
                         pinmux = <PINMUX_GPIO148__FUNC_GPIO148>;
                         output-low;
                 };
-        };
-
-        mmi_mux_wls_default: mmi_mux_wls_default {
-		wls_control {
-                        pinmux = <PINMUX_GPIO133__FUNC_GPIO133>;
-                        output-low;
-                };/*
-                wls_switch {
-                        pinmux = <PINMUX_GPIO104__FUNC_GPIO104>;
-                        output-low;
-                };
-                wls_boost {
-                        pinmux = <PINMUX_GPIO121__FUNC_GPIO121>;
-                        output-low;
-                };*/
         };
 
         mmi_control_wls_default: mmi_control_wls_default {
