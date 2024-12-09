@@ -950,8 +950,8 @@
 	smart_pa: smart_pa {
 	};
 
-	// mt_pmic_vcamio_ldo_reg: ldo_vcamio {
-	// };
+	mt_pmic_vcamio_ldo_reg: ldo_vcamio {
+	};
 
 };
 
