@@ -589,6 +589,24 @@
     status = "disabled";
 };
 
+/* SVP */
+&mtkheap_region_svp {
+    status = "ok";
+};
+
+&mtkheap_region_wfd {
+    status = "ok";
+};
+
+&mtee_svp {
+	mtee: MTEE {
+		compatible = "mediatek,mtk_svp_on_mtee_support";
+	};
+	svp: SecureVideoPath {
+		compatible = "mediatek,mtk_sec_video_path_support";
+	};
+};
+
 /* Trustonic Mobicore real driver */
 &mobicore {
     trustonic,real-drv = <1>;
