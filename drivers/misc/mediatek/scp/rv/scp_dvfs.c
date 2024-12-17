@@ -472,6 +472,16 @@ static uint32_t sum_required_freq(uint32_t core_id)
 			sum += feature_table[i].freq;
 	}
 
+#ifdef CONFIG_SOIS_BOOST_CPU
+	/*
+	 * calculate scp sensor frequence (core0 only)
+	 */
+	if (core_id == SCPSYS_CORE0)
+		for (i = 0; i < NUM_SENSOR_TYPE; i++)
+			if (sensor_type_table[i].enable == 1)
+				sum += sensor_type_table[i].freq;
+#endif
+
 	return sum;
 }
 

@@ -1939,6 +1939,88 @@ void scp_deregister_feature(enum feature_id id)
 }
 EXPORT_SYMBOL_GPL(scp_deregister_feature);
 
+#ifdef CONFIG_SOIS_BOOST_CPU
+void scp_register_sensor(enum feature_id id, int sensor_id)
+{
+	uint32_t i;
+
+	/* prevent from access when scp is down */
+	if (!scp_ready[SCP_A_ID])
+		return;
+
+	if (id != SENS_FEATURE_ID) {
+		pr_debug("[SCP]register sensor id err");
+		return;
+	}
+
+	if (sensor_id >= NUM_SENSOR_TYPE) {
+		pr_info("[SCP] sensor id not in sensor freq table");
+		return;
+	}
+
+	/* because feature_table is a global variable
+	 * use mutex lock to protect it from
+	 * accessing in the same time
+	 */
+	mutex_lock(&scp_register_sensor_mutex);
+	for (i = 0; i < NUM_SENSOR_TYPE; i++) {
+		if (sensor_type_table[i].feature == sensor_id)
+			sensor_type_table[i].enable = 1;
+	}
+
+	/* register sensor*/
+	scp_control_feature(id, true);
+
+	mutex_unlock(&scp_register_sensor_mutex);
+
+}
+
+EXPORT_SYMBOL_GPL(scp_register_sensor);
+
+/*scp sensor type deregister*/
+void scp_deregister_sensor(enum feature_id id, int sensor_id)
+{
+	bool feature_enable = false;
+
+	uint32_t i;
+
+	/* prevent from access when scp is down */
+	if (!scp_ready[SCP_A_ID])
+		return;
+
+	if (id != SENS_FEATURE_ID) {
+		pr_debug("[SCP]deregister sensor id err");
+		return;
+	}
+
+	if (sensor_id < 0 || sensor_id >= NUM_SENSOR_TYPE) {
+		pr_info("[SCP] sensor id not in sensor freq table");
+		return;
+	}
+
+	/* because feature_table is a global variable
+	 * use mutex lock to protect it from
+	 * accessing in the same time
+	 */
+	mutex_lock(&scp_register_sensor_mutex);
+
+	if (sensor_type_table[sensor_id].feature == sensor_id)
+		sensor_type_table[sensor_id].enable = 0;
+
+	for (i = 0; i < NUM_SENSOR_TYPE; i++) {
+		if (sensor_type_table[i].enable)
+			feature_enable = true;
+	}
+
+	/* deregister sensor*/
+	scp_control_feature(id, feature_enable);
+
+	mutex_unlock(&scp_register_sensor_mutex);
+}
+
+EXPORT_SYMBOL_GPL(scp_deregister_sensor);
+#endif
+
 /*scp sensor type register*/
 int sensor_control_scp(enum feature_id id, int freq)
 {

@@ -282,6 +282,13 @@ extern int sensor_control_scp(enum feature_id id, int freq);
 /* APIs for reset scp */
 extern void scp_wdt_reset(int cpu_id);
 
+#ifdef CONFIG_SOIS_BOOST_CPU
+extern void scp_register_sensor(enum feature_id id,
+		int sensor_id);
+extern void scp_deregister_sensor(enum feature_id id,
+		int sensor_id);
+#endif
+
 /* APIs for get status of scp dram_region_manage */
 extern int get_scp_dram_region_manage(void);
 
