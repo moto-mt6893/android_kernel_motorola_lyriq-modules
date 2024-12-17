@@ -3288,7 +3288,8 @@ int fg_prop_control_init(struct mtk_battery *gm)
 
 /*===================moto chg tcmd interface========================*/
 //extern int gauge_get_hwocv(void);
-
+//MMI_STOPSHIP kernel: London tcmd
+#if 0
 static int battery_tcmd_read_bat_temp(void *input, int* val)
 {
 	struct mtk_battery *gm = input;
@@ -3344,6 +3345,7 @@ static int battery_tcmd_read_bat_id(void *input, int* val)
 	return 0;
 }
 #endif
+
 static int battery_tcmd_read_bat_voltage(void *input, int* val)
 {
 	struct mtk_battery *gm = input;
@@ -3382,6 +3384,7 @@ static int battery_tcmd_register_tcmd(struct mtk_battery *gm)
 
 	return ret;
 }
+#endif
 /*===================moto chg tcmd interface end======================*/
 
 int battery_init(struct platform_device *pdev)
@@ -3461,6 +3464,6 @@ int battery_init(struct platform_device *pdev)
 		bm_err(gm, "[%s]: enable Kernel mode Gauge\n", __func__);
 	}
 
-	battery_tcmd_register_tcmd(gm);
+	// battery_tcmd_register_tcmd(gm);
 	return 0;
 }
