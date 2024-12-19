@@ -27,7 +27,7 @@
 #include "mtk_charger.h"
 #endif
 #include <tcpm.h>
-
+#include "mt6360_pmu_chg.h"
 #include <linux/mfd/mt6360-private.h>
 
 static bool dbg_log_en = true;
@@ -332,7 +332,7 @@ struct mt6360_chg_info {
 	struct workqueue_struct *pe_wq;
 	struct work_struct pe_work;
 	u8 ctd_dischg_status;
-#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
 	struct power_supply *batt_psy;
 	char                *batt_uenvp[2];
 #endif
@@ -558,6 +558,39 @@ static inline u32 mt6360_trans_usbid_src_ton(u32 src_ton)
 	}
 	return maxidx;
 }
+
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+static const u32 mt6360_usbid_is_period[] = {
+	4, 100, 200, 1600,
+};
+
+static inline u32 mt6360_trans_usbid_is_period(u32 period)
+{
+	int i;
+	int maxidx = ARRAY_SIZE(mt6360_usbid_is_period) - 1;
+	printk(KERN_ERR "%s, xuwei  period:%d", __func__, period);
+	if (period == 0)
+		return 0;
+	if (period < mt6360_usbid_is_period[0])
+		return 0;
+	if (period > mt6360_usbid_is_period[maxidx])
+		return maxidx;
+
+	for (i = 0; i < maxidx; i++) {
+		if (period == mt6360_usbid_is_period[i])
+			return i;
+		if (period > mt6360_usbid_is_period[i] &&
+		    period < mt6360_usbid_is_period[i + 1]) {
+			if ((period - mt6360_usbid_is_period[i]) <=
+			    (mt6360_usbid_is_period[i + 1] - period))
+				return i;
+			else
+				return i + 1;
+		}
+	}
+	return maxidx;
+}
+#endif
 
 static inline int mt6360_get_ieoc(struct mt6360_chg_info *mci, u32 *uA)
 {
@@ -2088,6 +2121,18 @@ static int mt6360_set_usbid_src_ton(struct charger_device *chg_dev, u32 src_ton)
 				  data << MT6360_ISTDET_SHFT);
 }
 
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+static int mt6360_set_usbid_is_period(struct charger_device *chg_dev, u32 period)
+{
+	struct mt6360_chg_info *mpci = charger_get_data(chg_dev);
+	u32 data = mt6360_trans_usbid_is_period(period);
+
+	return regmap_update_bits(mpci->regmap, MT6360_PMU_USBID_CTRL1,
+					  MT6360_MASK_ISPERIOD,
+					  data << MT6360_SHFT_ISPERIOD);
+}
+#endif
+
 static int mt6360_enable_usbid_floating(struct charger_device *chg_dev, bool en)
 {
 	struct mt6360_chg_info *mci = charger_get_data(chg_dev);
@@ -2184,6 +2229,9 @@ static const struct charger_ops mt6360_chg_ops = {
 	.enable_force_typec_otp = mt6360_enable_force_typec_otp,
 	.get_ctd_dischg_status = mt6360_get_ctd_dischg_status,
 	.enable_hidden_mode = mt6360_enable_hidden_mode,
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+	.set_usbid_is_period = mt6360_set_usbid_is_period,
+#endif
 };
 
 static const struct charger_properties mt6360_chg_props = {
@@ -2431,9 +2479,9 @@ static irqreturn_t mt6360_pmu_dcdti_handler(int irq, void *data)
 	dev_dbg(mci->dev, "%s\n", __func__);
 	return IRQ_HANDLED;
 }
-#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
 #define CHG_SHOW_MAX_SIEZE 50
-static int mmi_notify_vbus_event(struct mt6360_pmu_chg_info *mpci, bool vbus_status) {
+static int mmi_notify_vbus_event(struct mt6360_chg_info *mpci, bool vbus_status) {
 	char *event_string = NULL;
 
 	if(!mpci->batt_psy)
@@ -2471,8 +2519,8 @@ static irqreturn_t mt6360_pmu_chrdet_ext_evt_handler(int irq, void *data)
 	if (mci->pwr_rdy == pwr_rdy)
 		goto out;
 	mci->pwr_rdy = pwr_rdy;
-#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
-	mmi_notify_vbus_event(mpci, pwr_rdy);
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+	mmi_notify_vbus_event(mci, pwr_rdy);
 #endif
 	if (!IS_ENABLED(CONFIG_TCPC_CLASS) || pdata->bc12_sel != 0) {
 		mutex_lock(&mci->chgdet_lock);
@@ -3368,11 +3416,11 @@ static int mt6360_pmu_chg_remove(struct platform_device *pdev)
 	mutex_destroy(&mci->aicr_lock);
 	mutex_destroy(&mci->pe_lock);
 	mutex_destroy(&mci->hidden_mode_lock);
-#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
-	if(mpci->batt_psy) {
-		if(mpci->batt_uenvp[0]) {
-			kfree(mpci->batt_uenvp[0]);
-			mpci->batt_uenvp[0] = NULL;
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+	if(mci->batt_psy) {
+		if(mci->batt_uenvp[0]) {
+			kfree(mci->batt_uenvp[0]);
+			mci->batt_uenvp[0] = NULL;
 		}
 	}
 #endif

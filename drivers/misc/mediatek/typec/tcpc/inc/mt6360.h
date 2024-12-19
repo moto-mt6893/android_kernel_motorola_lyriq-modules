@@ -112,6 +112,9 @@ enum mt6360_id_rupsel {
 #define MT6360_REG_DEBOUNCE_CTRL4			(0xE5)
 #define MT6360_REG_CTD_CTRL2				(0xEC)
 
+#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
+#define MT6360_WD_DET_DPDM_ON_TIME		0x0C
+#endif
 /*
  * Device ID
  */

@@ -649,18 +649,23 @@ static int mt6360_enable_usbid_polling(struct mt6360_chip *chip, bool en)
 	if (en == chip->wd_polling)
 		return 0;
 	if (en) {
+#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
+		ret = charger_dev_set_usbid_src_ton(chip->chgdev,10000);
+#else
 		ret = charger_dev_set_usbid_src_ton(chip->chgdev, 100000);
+#endif
 		if (ret < 0) {
 			dev_err(chip->dev, "%s usbid src on 100ms fail\n",
 					__func__);
 			return ret;
 		}
-
+#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
 		ret = charger_dev_set_usbid_rup(chip->chgdev, 75000);
 		if (ret < 0) {
 			dev_err(chip->dev, "%s usbid rup75k fail\n", __func__);
 			return ret;
 		}
+#endif
 	}
 
 	ret = charger_dev_enable_usbid(chip->chgdev, en);
@@ -1496,11 +1501,22 @@ static inline int mt6360_init_water_detection(struct tcpc_device *tcpc)
 	 * (when RUST_PROTECT_EN is "1"), set as 4
 	 */
 	/* TODO: Modify PINS_SEL to CC1/CC2/DP/DM if USB setting is ready */
-	mt6360_i2c_write8(tcpc, MT6360_REG_WD_DET_CTRL2, 0x82);
+#ifdef CONFIG_MTK_TYPEC_WATER_DETECT
+	mt6360_i2c_write8(tcpc, MT6360_REG_WD_DET_CTRL2, 0x42);
+
+	mt6360_i2c_set_bit(tcpc, MT6360_REG_WD_DET_CTRL4,
+			   MT6360_WD_DET_CC_RPSEL | MT6360_WD_DET_CC_ROLE_PRT |
+			   MT6360_WD_DET_DPDM_ON_TIME);
 
 	/* sleep time, water protection check frequency */
 	mt6360_i2c_write8(tcpc, MT6360_REG_WD_DET_CTRL5,
+			  MT6360_REG_WD_DET_CTRL5_SET(199));
+#else
+	mt6360_i2c_write8(tcpc, MT6360_REG_WD_DET_CTRL2, 0x82);
+	/* sleep time, water protection check frequency */
+	mt6360_i2c_write8(tcpc, MT6360_REG_WD_DET_CTRL5,
 			  MT6360_REG_WD_DET_CTRL5_SET(9));
+#endif
 
 	return 0;
 }

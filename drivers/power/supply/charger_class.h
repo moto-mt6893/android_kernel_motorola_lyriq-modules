@@ -237,6 +237,9 @@ struct charger_ops {
 
 	/* enable adc*/
 	int (*enable_adc)(struct charger_device *dev, bool en);
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+	int (*set_usbid_is_period)(struct charger_device *dev, u32 period);
+#endif
 };
 
 static inline void *charger_dev_get_drvdata(
@@ -455,6 +458,9 @@ extern int charger_dev_notify(
 	struct charger_device *charger_dev, int event);
 extern int charger_dev_config_mux(struct charger_device *chg_dev,
 	enum mmi_dvchg_mux_channel typec_mos, enum mmi_dvchg_mux_channel wls_mos);
-
+#if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
+extern int charger_dev_set_usbid_is_period(struct charger_device *dev,
+					   u32 period);
+#endif
 
 #endif /*LINUX_POWER_CHARGER_CLASS_H*/

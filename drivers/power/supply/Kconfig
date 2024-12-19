@@ -341,4 +341,13 @@ config MOTO_WLC_ALG_SUPPORT
 	help
 	  This is to enable MOTO supports of wlc charger INTERFACE.
 
+config MTK_TYPEC_WATER_DETECT
+	tristate "Water detection function for type-c connector"
+	depends on TCPC_CLASS
+	help
+	  Say Yes to enable water detection on type-c connector.
+	  If water is detected on the connector, it will show
+	  warning to notify end user.
+	  If unsure, say N.
+
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"
