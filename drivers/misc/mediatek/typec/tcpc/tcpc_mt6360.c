@@ -1552,6 +1552,7 @@ not_auddev:
 	return false;
 }
 
+#define OV_CALBE_SBU_RES_V 180  //mv-->56k
 static int mt6360_is_water_detected(struct tcpc_device *tcpc)
 {
 	int ret, usbid;
@@ -1636,7 +1637,12 @@ static int mt6360_is_water_detected(struct tcpc_device *tcpc)
 		ret = 0;
 		goto out;
 	}
-
+	//ov cable with sbu 46k, add 10k tolerance to 56k
+	if(usbid < OV_CALBE_SBU_RES_V) {
+		MT6360_INFO("OV cable detected, ignore lpd\n");
+		ret = 0;
+		goto out;
+	}
 	/* Water detected, check again */
 	msleep(100); /* to avoid the same behavior of the other device */
 	ret = mt6360_get_usbid_adc(tcpc, &usbid);
