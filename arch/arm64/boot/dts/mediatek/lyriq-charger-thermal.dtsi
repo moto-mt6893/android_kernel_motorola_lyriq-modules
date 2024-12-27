@@ -43,6 +43,7 @@
 
 &charger {
         /* common */
+        gauge = <&mm8013>;
         battery_cv = <4480000>;
         max_charger_voltage = <14500000>;
         min_charger_voltage = <4600000>;
@@ -93,14 +94,13 @@
                        <45 0 12400 6000>,
                        <60 4200 4000 0>;
 
-	mmi,mmi-ffc-zones =
-                        <4200 215>,
-                        <4480 215>,
-                        <4480 215>,
-                        <4510 744>,
-                        <4510 848>,
-                        <4510 984>,
-                        <4200 215>;
+        mmi,mmi-ffc-zones = <0 4200 210>,
+                       <10 4500 210>,
+                       <15 4500 210>,
+                       <25 4530 785>,
+                       <35 4530 850>,
+                       <45 4530 1200>,
+                       <60 4200 210>;
 
         mmi,enable-charging-limit;
         mmi,upper-limit-capacity = <65>;
@@ -253,6 +253,7 @@
 
 &pe5 {
 	compatible = "mediatek,charger,pe5";
+        gauge = <&mm8013>;
 	polling-interval = <10000>;
 	vbat-cv = <4530>;
 	start-soc-min = <0>;
@@ -310,7 +311,7 @@
 
 &pdc {
 	compatible = "mediatek,charger,pd";
-
+        gauge = <&mm8013>;
 	min_charger_voltage = <4600000>;
 	pd_vbus_low_bound = <5000000>;
 	pd_vbus_upper_bound = <9000000>;
@@ -434,7 +435,7 @@
 &i2c0 {
         status = "okay";
 
-	mm8013@55 {
+	mm8013:mm8013@55 {
 		compatible = "mitsumi,mm8013c10";
 		reg = <0x55>;
 		//status = "okay";
