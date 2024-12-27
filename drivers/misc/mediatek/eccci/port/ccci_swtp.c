@@ -19,7 +19,9 @@
 #include "ccci_modem.h"
 #include "ccci_swtp.h"
 #include "ccci_fsm.h"
-
+#if defined(CONFIG_MOTO_LYRIQ_DRDI_RF_SET_INDEX)
+extern int moto_drdi_rf_set_index;
+#endif
 /* must keep ARRAY_SIZE(swtp_of_match) = ARRAY_SIZE(irq_name) */
 const struct of_device_id swtp_of_match[] = {
 	{ .compatible = SWTP_COMPATIBLE_DEVICE_ID, },
@@ -149,18 +151,44 @@ static int swtp_switch_state(int irq, struct swtp_t *swtp)
 	swtp->tx_power_mode = SWTP_NO_TX_POWER;
 
         #if defined(CONFIG_MOTO_LYRIQ_PROJECT_SWTP_SETING_APART)
+	// swtp logic for jpn sku(rf index 1,3,5,7)
+        if (moto_drdi_rf_set_index == 1 || moto_drdi_rf_set_index == 3 || moto_drdi_rf_set_index == 5 || moto_drdi_rf_set_index == 7)
+        {
+                CCCI_LEGACY_ERR_LOG(0, SYS,
+			"LYRIQ JPN %s moto_drdi_rf_set_index = %d\n",
+			__func__, moto_drdi_rf_set_index);
+        if ((swtp->gpio_state[1] == SWTP_EINT_PIN_PLUG_OUT)&&(swtp->gpio_state[2] == SWTP_EINT_PIN_PLUG_OUT)&&(swtp->gpio_state[3] == SWTP_EINT_PIN_PLUG_OUT)) {
+		swtp->tx_power_mode = SWTP_DO_TX_POWER;
+		CCCI_LEGACY_ERR_LOG(0, SYS,
+			"--------LYRIQ JPN SWTP_DO_TX_POWER----------%s>>tx_power_mode = %d,gpio_state:gpio169-Ant2=%d, gpio170-Ant1=%d, gpio171-Ant0=%d\n",
+			__func__, swtp->tx_power_mode, swtp->gpio_state[1], swtp->gpio_state[2],swtp->gpio_state[3]);
+	}
+        else {
+		swtp->tx_power_mode = SWTP_NO_TX_POWER;
+		CCCI_LEGACY_ERR_LOG(0, SYS,
+      	     "-------LYRIQ JPN SWTP_NO_TX_POWER----------%s>>tx_power_mode = %d,gpio_state:gpio169-Ant2=%d, gpio170-Ant1=%d, gpio171-Ant0=%d\n",
+			__func__, swtp->tx_power_mode,swtp->gpio_state[1], swtp->gpio_state[2],swtp->gpio_state[3]);
+	}
+
+        }
+	// swtp logic for row sku(rf index 0,2,4,6)
+        else {
+                CCCI_LEGACY_ERR_LOG(0, SYS,
+			"LYRIQ ROW %s moto_drdi_rf_set_index = %d\n",
+			__func__, moto_drdi_rf_set_index);
 	if ((swtp->gpio_state[0] == SWTP_EINT_PIN_PLUG_OUT)&&(swtp->gpio_state[1] == SWTP_EINT_PIN_PLUG_OUT)&&(swtp->gpio_state[2] == SWTP_EINT_PIN_PLUG_OUT)&&(swtp->gpio_state[3] == SWTP_EINT_PIN_PLUG_OUT)) {
 		swtp->tx_power_mode = SWTP_DO_TX_POWER;
 		CCCI_LEGACY_ERR_LOG(0, SYS,
-			"--------SWTP_DO_TX_POWER----------%s>>tx_power_mode = %d,gpio_state:gpio168-ANT8=%d, gpio169-Ant2=%d, gpio170-Ant1=%d, gpio171-Ant0=%d\n",
+			"--------LYRIQ ROW SWTP_DO_TX_POWER----------%s>>tx_power_mode = %d,gpio_state:gpio168-ANT8=%d, gpio169-Ant2=%d, gpio170-Ant1=%d, gpio171-Ant0=%d\n",
 			__func__, swtp->tx_power_mode, swtp->gpio_state[0], swtp->gpio_state[1], swtp->gpio_state[2],swtp->gpio_state[3]);
 	}
         else {
 		swtp->tx_power_mode = SWTP_NO_TX_POWER;
 		CCCI_LEGACY_ERR_LOG(0, SYS,
-      	     "-------SWTP_NO_TX_POWER----------%s>>tx_power_mode = %d,gpio_state:gpio168-ANT8=%d, gpio169-Ant2=%d, gpio170-Ant1=%d, gpio171-Ant0=%d\n",
+      	    "-------LYRIQ ROW SWTP_NO_TX_POWER----------%s>>tx_power_mode = %d,gpio_state:gpio168-ANT8=%d, gpio169-Ant2=%d, gpio170-Ant1=%d, gpio171-Ant0=%d\n",
 			__func__, swtp->tx_power_mode, swtp->gpio_state[0], swtp->gpio_state[1], swtp->gpio_state[2],swtp->gpio_state[3]);
 	}
+        }
         #else
 	for (i = 0; i < MAX_PIN_NUM; i++) {
 		if (swtp->gpio_state[i] == SWTP_EINT_PIN_PLUG_IN) {

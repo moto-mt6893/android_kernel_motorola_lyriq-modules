@@ -43,7 +43,9 @@
 #include "ccci_fsm.h"
 
 #define MAX_QUEUE_LENGTH 16
-
+#if defined(CONFIG_MOTO_LYRIQ_DRDI_RF_SET_INDEX)
+int moto_drdi_rf_set_index;
+#endif
 static struct gpio_item gpio_mapping_table[] = {
 	{"GPIO_FDD_Band_Support_Detection_1",
 		"GPIO-FDD-BAND-SUPPORT-DETECT-1ST-PIN",
@@ -461,6 +463,9 @@ static void get_md_dtsi_debug(void)
 		return;
 	}
 	get_md_dtsi_val(&input, &output);
+#if defined(CONFIG_MOTO_LYRIQ_DRDI_RF_SET_INDEX)
+        moto_drdi_rf_set_index = output.retValue;
+#endif
 }
 
 static void ccci_rpc_get_gpio_adc(struct ccci_rpc_gpio_adc_intput *input,
