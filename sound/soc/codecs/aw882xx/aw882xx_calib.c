@@ -49,7 +49,7 @@ static struct miscdevice *g_misc_dev;
 static DEFINE_MUTEX(g_cali_lock);
 
 #ifndef AW_AUDIOREACH_PLATFORM
-#define AW_CALI_STORE_EXAMPLE
+// #define AW_CALI_STORE_EXAMPLE
 #endif
 
 #ifdef AW_CALI_STORE_EXAMPLE
