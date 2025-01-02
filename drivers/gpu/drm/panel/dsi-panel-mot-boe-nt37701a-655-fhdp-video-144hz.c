@@ -1096,6 +1096,9 @@ static struct mtk_panel_params ext_params_60hz = {
 	.data_rate = 440,
 	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
 	.panel_supplier = "boe-nt37701a",
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 static struct mtk_panel_params ext_params_90hz = {
 
@@ -1159,8 +1162,9 @@ static struct mtk_panel_params ext_params_90hz = {
 	.data_rate = 630,
 	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
 	.panel_supplier = "boe-nt37701a",
-
-
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 static struct mtk_panel_params ext_params_120hz = {
 
@@ -1225,6 +1229,9 @@ static struct mtk_panel_params ext_params_120hz = {
 	.data_rate = 820,
 	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
 	.panel_supplier = "boe-nt37701a",
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 
 static struct mtk_panel_params ext_params_144hz = {
@@ -1290,6 +1297,9 @@ static struct mtk_panel_params ext_params_144hz = {
 	.data_rate = 1000,
 	.panel_name = "mipi_mot_cmd_boe_nt37701a_fhd_655",
 	.panel_supplier = "boe-nt37701a",
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 #endif
 
@@ -1320,7 +1330,8 @@ static int lcm_setbacklight_cmdq(void *dsi, dcs_write_gce cb, void *handle,
 
 	if (!cb)
 		return -1;
-
+	pr_info("%s enter  \n",__func__);
+	pr_info("%s backlight level = %d  \n",__func__,level);
 	cb(dsi, handle, bl_tb0, ARRAY_SIZE(bl_tb0));
 	ctx->current_bl = level;
 	return 0;

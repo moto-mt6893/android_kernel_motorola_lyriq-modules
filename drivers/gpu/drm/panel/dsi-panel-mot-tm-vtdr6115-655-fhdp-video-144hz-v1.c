@@ -471,7 +471,9 @@ static struct mtk_panel_params ext_params_60hz = {
 	.panel_ver = 1,
 	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
 	.panel_supplier = "tianma-vtdr6115",
-
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 
 static struct mtk_panel_params ext_params_90hz = {
@@ -538,6 +540,9 @@ static struct mtk_panel_params ext_params_90hz = {
 	.panel_ver = 1,
 	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
 	.panel_supplier = "tianma-vtdr6115",
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 static struct mtk_panel_params ext_params_120hz = {
 	// .pll_clk = DISP_PLL_CLK,
@@ -602,6 +607,9 @@ static struct mtk_panel_params ext_params_120hz = {
 	.panel_ver = 1,
 	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
 	.panel_supplier = "tianma-vtdr6115",
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 
 static struct mtk_panel_params ext_params_144hz = {
@@ -667,6 +675,9 @@ static struct mtk_panel_params ext_params_144hz = {
 	.panel_ver = 1,
 	.panel_name = "mipi_mot_vid_tianma_vtdr6115_fhd_655_v1",
 	.panel_supplier = "tianma-vtdr6115",
+	.check_panel_feature = 1,
+	.max_bl_level = 3514,
+	.hbm_type = HBM_MODE_DCS_ONLY,
 };
 #if 0
 static int panel_ata_check(struct drm_panel *panel)
@@ -689,6 +700,8 @@ static int lcm_setbacklight_cmdq(void *dsi, dcs_write_gce cb, void *handle,
 	if (!(ctx->current_bl && level)) pr_info("backlight changed from %u to %u\n", ctx->current_bl, level);
 	else pr_debug("backlight changed from %u to %u\n", ctx->current_bl, level);
 
+	pr_info("%s enter  \n",__func__);
+	pr_info("%s backlight level = %d  \n",__func__,level);
 	bl_tb0[1] = (u8)((level>>8)&0xF);
 	bl_tb0[2] = (u8)(level&0xFF);
 
