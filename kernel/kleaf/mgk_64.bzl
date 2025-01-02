@@ -1105,6 +1105,7 @@ def get_overlay_modules_list():
     if "moto" in DEFCONFIG_OVERLAYS:
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/utag:utags")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/moto_f_usbnet:moto_f_usbnet")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/moto_swap:moto_swap")
     if "lyriq" in DEFCONFIG_OVERLAYS:
         #mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/misc/fpc_fps_mmi:fpc_mtk_tee")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/power/cps4038:cps_wls_charger_4038")
