@@ -10048,8 +10048,11 @@ static int mtk_drm_ioctl_set_panel_feature(struct drm_device *dev, void *data,
 		comp = mtk_ddp_comp_request_output(mtk_crtc);
 		panel_ext = mtk_drm_get_lcm_ext_params(crtc);
 
-		if (panel_ext->check_panel_feature) {
+		if (panel_ext != NULL && panel_ext->check_panel_feature) {
 			if (!mtk_drm_check_panel_feature_valid(crtc, *param_info)) return ret;
+		}else {
+			DDPPR_ERR("Cannot get lcm_ext_params\n");
+			continue;
 		}
 
 		DDPMSG("%s(crtc%d): set param_idx %d to %d\n", __func__, drm_crtc_index(crtc), param_info->param_idx, param_info->value);
