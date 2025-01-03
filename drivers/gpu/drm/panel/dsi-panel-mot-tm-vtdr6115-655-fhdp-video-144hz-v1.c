@@ -839,55 +839,54 @@ static int mode_switch(struct drm_panel *panel, unsigned int cur_mode,
 }
 #endif
 
-static struct mtk_panel_para_table panel_lhbm_bright_on[] = {
-	{3, {0xf0, 0xaa, 0x13}},
-	{2, {0xc6, 0x01}},
-	{3, {0x63, 0x03, 0xff}},
-	{2, {0x62, 0x03}},
+static struct mtk_panel_para_table panel_lhbm_on[] = {
+   {3, {0xf0, 0xaa, 0x13}},
+   {2, {0xc6, 0x01}},
+   {3, {0x63, 0x03, 0xff}},
+   {3, {0x51, 0x06, 0x8f}},
+   {2, {0x62, 0x03}},
 };
 
-static struct mtk_panel_para_table panel_lhbm_bright_off[] = {
-	{2, {0x62, 0x00}},
-	{3, {0xf0, 0xaa, 0x13}},
-	{2, {0xc6, 0x00}},
+static struct mtk_panel_para_table panel_lhbm_off[] = {
+   {2, {0x62, 0x00}},
+   {3, {0x51, 0x06, 0x8f}},
+   {3, {0xf0, 0xaa, 0x13}},
+   {2, {0xc6, 0x00}},
 };
 
-static struct mtk_panel_para_table panel_lhbm_dark_on[] = {
-	{3, {0xf0, 0xaa, 0x13}},
-	{2, {0xc6, 0x01}},
-	{3, {0x63, 0x03, 0xff}},
-	{3, {0x51, 0x06, 0x8f}},
-	{2, {0x62, 0x03}},
-};
-
-static struct mtk_panel_para_table panel_lhbm_dark_off[] = {
-	{2, {0x62, 0x00}},
-	{3, {0x51, 0x03, 0xff}},
-	{3, {0xf0, 0xaa, 0x13}},
-	{2, {0xc6, 0x00}},
-};
-
-static struct mtk_panel_para_table panel_lhbm_off_hbm_on[] = {
-	{2, {0x62, 0x00}},
-	{3, {0x51, 0x0f, 0xff}},
-	{3, {0xf0, 0xaa, 0x13}},
-	{2, {0xc6, 0x00}},
-};
-
-static void set_lhbm_alpha(unsigned int bl_level)
+static void set_lhbm_alpha(unsigned int bl_level, unsigned int on)
 {
-	struct mtk_panel_para_table *pTable = &panel_lhbm_dark_on[2];
+	struct mtk_panel_para_table *pAlphaTable;
+	struct mtk_panel_para_table *pDbvTable;
 	unsigned int alpha = 0;
-	unsigned int lhbm_alpha_index = bl_level-1;
+	unsigned int dbv = 0;
 
-	if (bl_level == 0)
-		lhbm_alpha_index = 0;
+	if(on) {
+		pAlphaTable = &panel_lhbm_on[2];
+		pDbvTable = &panel_lhbm_on[3];
+		if(bl_level < 1679)	//0x68f, bl threshold
+			dbv = 1679;
+		else
+			dbv = bl_level;
 
-	alpha = lhbm_alpha[lhbm_alpha_index];
+		if (bl_level >= ARRAY_SIZE(lhbm_alpha))
+			bl_level = ARRAY_SIZE(lhbm_alpha) -1;
 
-	pTable->para_list[1] = (alpha >> 8) & 0xFF;
-	pTable->para_list[2] = alpha & 0xFF;
-	pr_info("%s: backlight %d alpha %d(0x%x, 0x%x)\n", __func__, bl_level, alpha, pTable->para_list[1], pTable->para_list[2]);
+		alpha = lhbm_alpha[bl_level];
+
+		pAlphaTable->para_list[1] = (alpha >> 8) & 0xFF;
+		pAlphaTable->para_list[2] = alpha & 0xFF;
+		pDbvTable->para_list[1] = (dbv >> 8) & 0xFF;
+		pDbvTable->para_list[2] = dbv & 0xFF;
+		pr_info("%s: backlight %d alpha %d(0x%x, 0x%x), dbv(0x%x, 0x%x)\n", __func__, bl_level, alpha,
+			pAlphaTable->para_list[1], pAlphaTable->para_list[2], pDbvTable->para_list[1], pDbvTable->para_list[2]);
+	} else {
+		pDbvTable = &panel_lhbm_off[1];
+		pDbvTable->para_list[1] = (bl_level >> 8) & 0xFF;
+		pDbvTable->para_list[2] = bl_level & 0xFF;
+		pr_info("%s: backlight restore %d dbv(0x%x, 0x%x)\n", __func__, bl_level,
+			pDbvTable->para_list[1], pDbvTable->para_list[2]);
+	}
 }
 
 static int panel_lhbm_set_cmdq(void *dsi, dcs_grp_write_gce cb, void *handle, uint32_t on, uint32_t bl_level, uint32_t fps)
@@ -895,33 +894,22 @@ static int panel_lhbm_set_cmdq(void *dsi, dcs_grp_write_gce cb, void *handle, ui
 	unsigned int para_count = 0;
 	struct mtk_panel_para_table *pTable;
 
+	set_lhbm_alpha(bl_level, on);
 	if (on) {
-		if (bl_level <= ARRAY_SIZE(lhbm_alpha)) {
-			set_lhbm_alpha(bl_level);
-			para_count = sizeof(panel_lhbm_dark_on) / sizeof(struct mtk_panel_para_table);
-			pTable = panel_lhbm_dark_on;
-		} else {
-			para_count = sizeof(panel_lhbm_bright_on) / sizeof(struct mtk_panel_para_table);
-			pTable = panel_lhbm_bright_on;
-		}
+		para_count = sizeof(panel_lhbm_on) / sizeof(struct mtk_panel_para_table);
+		pTable = panel_lhbm_on;
 	} else {
-		if (bl_level <= ARRAY_SIZE(lhbm_alpha)) {
-			pTable = &panel_lhbm_dark_off[1];
-			pTable->para_list[1] = (bl_level >> 8) & 0xFF;
-			pTable->para_list[2] = bl_level & 0xFF;
-			para_count = sizeof(panel_lhbm_dark_off) / sizeof(struct mtk_panel_para_table);
-			pTable = panel_lhbm_dark_off;
-		} else {
-			para_count = sizeof(panel_lhbm_bright_off) / sizeof(struct mtk_panel_para_table);
-			pTable = panel_lhbm_bright_off;
-		}
-
+		para_count = sizeof(panel_lhbm_off) / sizeof(struct mtk_panel_para_table);
 		if(fps == 90)
-			pTable[0].para_list[1] = 0x01;
+			panel_lhbm_off[0].para_list[1] = 0x01;
 		else
-			pTable[0].para_list[1] = 0x00;
+			panel_lhbm_off[0].para_list[1] = 0x00;
+		pr_info("%s: panel_lhbm_off(0x%x, 0x%x)\n", __func__,
+			panel_lhbm_off[0].para_list[0], panel_lhbm_off[0].para_list[1]);
+		pTable = panel_lhbm_off;
 	}
 	cb(dsi, handle, pTable, para_count);
+	pr_info("%s: para_count %d\n", __func__, para_count);
 	return 0;
 
 }
@@ -938,14 +926,7 @@ static int pane_hbm_set_cmdq(struct lcm *ctx, void *dsi, dcs_grp_write_gce cb, v
 				panel_lhbm_set_cmdq(dsi, cb, handle, 0, ctx->current_bl, ctx->current_fps);
 			break;
 		case 1:
-			if (ctx->lhbm_en) {
-				if (ctx->current_fps == 90) panel_lhbm_off_hbm_on[0].para_list[1] = 1;
-				else panel_lhbm_off_hbm_on[0].para_list[1] = 0;
-
-				cb(dsi, handle, panel_lhbm_off_hbm_on, 4);
-			} else {
-				cb(dsi, handle, &hbm_on_table, 1);
-			}
+			cb(dsi, handle, &hbm_on_table, 1);
 			break;
 		case 2:
 			if (ctx->lhbm_en)
