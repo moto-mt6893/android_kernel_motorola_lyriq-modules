@@ -33,7 +33,7 @@
 		pinctrl-1 = <&ctp_gt9896s_int_suspend &ctp_gt9896s_reset_suspend>;
 		spi-max-frequency = <9600000>;  /* 4800000,9600000,15000000,19200000 */
 		goodix,iovdd-name = "vtouch";
-		goodix,panel-supplier = "boe","tianma";
+		goodix,panel-supplier = "boe","tm";
 		vtouch-supply = <&mt_pmic_vtp_ldo_reg>;
 		goodix,reset-gpio = <&pio 20 0x0>;
 		goodix,irq-gpio = <&pio 21 0x0>;
