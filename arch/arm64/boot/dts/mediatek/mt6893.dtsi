@@ -87,7 +87,6 @@
 		bootargs = "root=/dev/ram vmalloc=400M \
 		8250.nr_uarts=2 \
 		initcall_debug=1 \
-		disable_dma32=on \
 		loglevel=8 \
 		rcupdate.rcu_expedited=1 swiotlb=noforce transparent_hugepage=never \
 		firmware_class.path=/vendor/firmware \
