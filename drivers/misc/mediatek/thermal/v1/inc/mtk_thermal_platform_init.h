@@ -63,6 +63,7 @@ extern int mtkts_wtcharger_init(void);
 extern int mtkts_typec_therm_init(void);
 extern int mtkts_mbtherm_init(void);
 extern int mtkts_wchgtherm_init(void);
+extern int mtk_cooler_bcct_2nd_init(void);
 extern int vtskin_init(void);
 
 extern void mt6359vcore_exit(void);
@@ -76,6 +77,7 @@ extern void mtkts_wtcharger_exit(void);
 extern void mtkts_typec_therm_exit(void);
 extern void mtkts_mbtherm_exit(void);
 extern void mtkts_wchgtherm_exit(void);
+extern void mtk_cooler_bcct_2nd_exit(void);
 extern void vtskin_exit(void);
 
 //for thermal cooler

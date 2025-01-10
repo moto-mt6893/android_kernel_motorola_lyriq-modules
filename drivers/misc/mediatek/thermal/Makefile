@@ -242,6 +242,10 @@ ifeq ($(CONFIG_MTK_THERMAL_PA_VIA_ATCMD),y)
 thermal_monitor-y += common/coolers/mtk_cooler_mutt_gen97.o
 endif
 
+ifeq ($(CONFIG_THERMAL_CP_SUPPORT),y)
+thermal_monitor-y += common/coolers/mtk_cooler_bcct_cp.o
+endif
+
 #thermal_monitor-y += v1/src/mtk_thermal_ipi.o
 thermal_monitor-y += common/thermal_zones/mtk_ts_cpu_noBankv2.o
 thermal_monitor-y += v1/src/mtk_thermal_ipi_mt6893.o

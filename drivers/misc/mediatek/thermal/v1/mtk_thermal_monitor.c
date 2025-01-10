@@ -2089,6 +2089,7 @@ static int __init thermal_monitor_init(void)
 		mtkts_typec_therm_init();
 		mtkts_mbtherm_init();
 		mtkts_wchgtherm_init();
+		mtk_cooler_bcct_2nd_init();
 		vtskin_init();
 #endif
 
@@ -2138,6 +2139,7 @@ static void __exit thermal_monitor_exit(void)
 	mtkts_typec_therm_exit();
 	mtkts_mbtherm_exit();
 	mtkts_wchgtherm_exit();
+	mtk_cooler_bcct_2nd_exit();
 	vtskin_exit();
 #endif
 

@@ -50,3 +50,8 @@ config TYPEC_GPIO_OUT_TOGGLE
 	help
 	  This feature option is used to enable/disable
           mosfet control in usb therm gpio.
+
+config THERMAL_CP_SUPPORT
+      bool "Thermal charge pump support"
+      help
+         3rd charge pump thermal limit charge current
