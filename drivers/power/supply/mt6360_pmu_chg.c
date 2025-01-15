@@ -892,7 +892,9 @@ static int mt6360_chgdet_post_process(struct mt6360_chg_info *mci)
 		dev_info(mci->dev,
 			  "%s: Charger Type: NONSTANDARD_CHARGER\n", __func__);
 		mci->psy_desc.type = POWER_SUPPLY_TYPE_USB;
+#if !IS_ENABLED (CONFIG_WIRELESS_DISABLE_PMIC_ONLINE)
 		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_DCP;
+#endif
 		break;
 	case MT6360_CHG_TYPE_CDP:
 		dev_info(mci->dev,
@@ -2994,11 +2996,34 @@ static int mt6360_charger_get_property(struct power_supply *psy,
 	int ret = 0;
 	bool pwr_rdy = false, chg_en = false;
 
+#if IS_ENABLED (CONFIG_WIRELESS_DISABLE_PMIC_ONLINE)
+	union power_supply_propval propval;
+
+	mci->wlc_psy = power_supply_get_by_name("wireless");
+	if(!mci->wlc_psy){
+		dev_err(mci->dev,"%s: get power supply failed\n", __func__);
+		propval.intval = 0;
+	}else{
+		ret = power_supply_get_property(mci->wlc_psy, POWER_SUPPLY_PROP_ONLINE,&propval);
+		if (ret < 0){
+			dev_err(mci->dev, "%s: wls online fail(%d)\n", __func__, ret);
+		}
+	}
+#endif
 	dev_dbg(mci->dev, "%s: prop = %d\n", __func__, psp);
 	switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
+#if IS_ENABLED (CONFIG_WIRELESS_DISABLE_PMIC_ONLINE)
+		if(propval.intval == 1){
+			val->intval = 0;
+		}else{
+			ret = mt6360_charger_get_online(mci, &pwr_rdy);
+			val->intval = pwr_rdy;
+		}
+#else
 		ret = mt6360_charger_get_online(mci, &pwr_rdy);
 		val->intval = pwr_rdy;
+#endif
 		break;
 	case POWER_SUPPLY_PROP_TYPE:
 		val->intval = mci->psy_desc.type;
@@ -3020,7 +3045,11 @@ static int mt6360_charger_get_property(struct power_supply *psy,
 		ret |= mt6360_get_charging_status(mci, &chg_stat);
 		if (ret < 0)
 			return ret;
+#if IS_ENABLED (CONFIG_WIRELESS_DISABLE_PMIC_ONLINE)
+		if (!pwr_rdy && !propval.intval) {
+#else
 		if (!pwr_rdy) {
+#endif
 			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
 			return ret;
 		}

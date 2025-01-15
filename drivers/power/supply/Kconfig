@@ -350,4 +350,9 @@ config MTK_TYPEC_WATER_DETECT
 	  warning to notify end user.
 	  If unsure, say N.
 
+config WIRELESS_DISABLE_PMIC_ONLINE
+    tristate "The PMIC is disable durging wireless charging"
+	help
+	  The PMIC is disable durging wireless charging.
+
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"
