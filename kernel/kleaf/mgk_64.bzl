@@ -1118,6 +1118,7 @@ def get_overlay_modules_list():
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/mmi_info:mmi_info")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/mmi_relay:mmi_relay")
         mgk_64_device_modules.append("drivers/gpu/drm/panel/dsi-panel-mot-tm-vtdr6115-655-fhdp-video-144hz-v1.ko")
+        mgk_64_device_modules.append("drivers/gpu/drm/panel/dsi-panel-mot-tm-vtdr6115-655-fhdp-video-144hz.ko")
         mgk_64_device_modules.append("drivers/gpu/drm/panel/dsi-panel-mot-boe-nt37701a-655-fhdp-video-144hz.ko")
         mgk_64_device_modules.append("sound/soc/codecs/aw882xx/snd-soc-aw882xx.ko")
         mgk_64_device_modules.append("drivers/misc/mediatek/typec/mux/fsa4480-i2c.ko")
