@@ -1421,7 +1421,7 @@ static int bs_psy_get_property(struct power_supply *psy,
 		break;
 		}
 
-	pr_err("%s psp:%d ret:%d val:%d", __func__, psp, ret, val->intval);
+	pr_debug("%s psp:%d ret:%d val:%d", __func__, psp, ret, val->intval);
 
 	return ret;
 }
