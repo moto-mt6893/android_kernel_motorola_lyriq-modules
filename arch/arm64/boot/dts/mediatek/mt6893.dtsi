@@ -8450,11 +8450,11 @@ cpus {
 			};
 			dram_s0: dram_s0 {
 				id = <0x00000003>;
-				value = <0>;
+				value = <1>;
 			};
 			dram_s1: dram_s1 {
 				id = <0x00000004>;
-				value = <0>;
+				value = <1>;
 			};
 		};
 
