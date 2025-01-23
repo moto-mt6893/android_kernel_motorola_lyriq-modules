@@ -183,7 +183,7 @@ static void x_chrlmt_set_limit_handler(struct work_struct *work)
 	union power_supply_propval prop = {0, };
 
 	if (!cp_psy) {
-		cp_psy = power_supply_get_by_name("primary_chg");
+		cp_psy = power_supply_get_by_name("mtk-master-charger");
 		if (!cp_psy) {
 			mtk_cooler_bcct_2nd_dprintk_always("%s, get cp psy failed\n",
 								__func__);
@@ -242,7 +242,7 @@ int bat_char_curr_limit)
 		min_bat_char_curr_limit = -1;
 
       if (!cp_psy) {
-		cp_psy = power_supply_get_by_name("primary_chg");
+		cp_psy = power_supply_get_by_name("mtk-master-charger");
 		if (!cp_psy) {
 			mtk_cooler_bcct_2nd_dprintk_always("%s, get cp psy failed\n",
 								__func__);
