@@ -2224,27 +2224,16 @@ static bool panel_set_hbm_backlight(struct drm_crtc *crtc, unsigned int *bl_lvl)
 
 		pr_info("HBM set  bl_level=%d bl_max_level = %d bl_lvl_during_hbm = %d hbm_mode = %d\n",
 				bl_level, max_bl_level, bl_lvl_during_hbm, hbm_mode);
-	} else if (bl_level == BRIGHTNESS_HBM_ON_SKIP_BL) {
-		hbm_mode = true;
-		pr_info("enter HBM mode, will skip backlight setting.\n");
-		return true;
 	} else {
 		bl_lvl_during_hbm = bl_level;
 
-		if (panel_ext->check_panel_feature) {
-			if (panel_is_hbm_on(crtc) && bl_level) {
-				pr_info("HBM is on.. ignore setting backlight. bl_vl=%d\n", bl_lvl_during_hbm);
-				return true;
-			}
-		} else {
-			if (bl_level == 0) {
-				hbm_mode = false;
-				pr_info(" bl_vl=%d, set hbm_mode to false\n", bl_level);
-			}
-			else if (hbm_mode) {
-				pr_info("HBM is on.. ignore setting backlight. bl_vl=%d\n", bl_lvl_during_hbm);
-				return true;
-			}
+		if (bl_level == 0) {
+			hbm_mode = false;
+			pr_info(" bl_vl=%d, set hbm_mode to false\n", bl_level);
+		}
+		else if (hbm_mode) {
+			pr_info("HBM is on.. ignore setting backlight. bl_vl=%d\n", bl_lvl_during_hbm);
+			return true;
 		}
 	}
 	return false;
