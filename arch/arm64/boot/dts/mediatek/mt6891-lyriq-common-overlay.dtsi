@@ -320,11 +320,6 @@
 };
 /* FINGERPRINT end */
 
-&subpmic_mtk {
-	mt6360,intr_gpio_num = <24>; // direct defined GPIO num //
-	mt6360,intr_gpio = <&pio 24 0x0>;
-};
-
 &mt6360_pmic  {
 	pwr_off_seq = [04 00 02 02];
 };
