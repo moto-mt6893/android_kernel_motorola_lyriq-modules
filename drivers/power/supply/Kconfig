@@ -331,6 +331,12 @@ config EXTERN_FG_MM8013
 	  Say Yes to enable MM8013 driver.
 	  It is mainly used as battery gauge
 
+config MOTO_CHANNEL_SWITCH
+    bool "WIRELESS CHANNEL SWITCH CHARGER  control support"
+    default n
+	help
+	  This is to enable MOTO supports of charger channel switch.
+
 config MOTO_CHG_TCMD_SUPPORT
     tristate "MOTO TCMD interface driver for charger"
 	help

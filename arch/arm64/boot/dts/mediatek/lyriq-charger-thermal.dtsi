@@ -52,7 +52,7 @@
         enable_sw_jeita;
 
         /*pe5 && pdc && pe2 && wlc*/
-	fast_charging_indicator = <0x36>;
+	fast_charging_indicator = <0x8036>;
 	/*swchg + 2CP*/
 	charger_configuration= <4>;
         /* charging current */
@@ -510,6 +510,7 @@
 
 &moto_wlc {
 	compatible = "moto,charger,wlc";
+        gauge = <&mm8013>;
 	enable_wlc;
         wlc_min_charger_voltage = <4600000>;
         wlc_max_charger_current = <3150000>;

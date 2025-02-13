@@ -30,6 +30,9 @@ enum mmi_dvchg_mux_channel {
 	MMI_DVCHG_MUX_OTG_OPEN,
 	MMI_DVCHG_MUX_CLOSE,
 	MMI_DVCHG_MUX_MANUAL_OPEN,
+#ifdef CONFIG_MOTO_CHANNEL_SWITCH
+	MMI_DVCHG_MUX_OTG_WLC_OPEN,
+#endif
 	MMI_DVCHG_MUX_DISABLE,
 };
 
@@ -240,6 +243,7 @@ struct charger_ops {
 #if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
 	int (*set_usbid_is_period)(struct charger_device *dev, u32 period);
 #endif
+	int (*get_vmos_chg)(struct charger_device *chg_dev, bool type, int *uV);
 };
 
 static inline void *charger_dev_get_drvdata(
@@ -458,6 +462,7 @@ extern int charger_dev_notify(
 	struct charger_device *charger_dev, int event);
 extern int charger_dev_config_mux(struct charger_device *chg_dev,
 	enum mmi_dvchg_mux_channel typec_mos, enum mmi_dvchg_mux_channel wls_mos);
+extern int charger_dev_get_vmos_adc(struct charger_device *chg_dev, bool type, int *uV);
 #if IS_ENABLED (CONFIG_MTK_TYPEC_WATER_DETECT)
 extern int charger_dev_set_usbid_is_period(struct charger_device *dev,
 					   u32 period);
