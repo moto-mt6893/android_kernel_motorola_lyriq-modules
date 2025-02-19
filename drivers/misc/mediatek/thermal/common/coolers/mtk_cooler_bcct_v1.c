@@ -1080,34 +1080,24 @@ static void bcct_lcmoff_switch(int onoff)
 static int bcct_lcmoff_fb_notifier_callback(
 struct notifier_block *self, unsigned long event, void *data)
 {
-	struct fb_event *evdata = data;
-	int blank;
-
-	/* skip if it's not a blank event */
-	if ((event != FB_EVENT_BLANK) || (data == NULL))
-		return 0;
+	const unsigned long event_enum[2] = {MTK_DISP_EARLY_EVENT_BLANK, MTK_DISP_EVENT_BLANK};
+	const int blank_enum[2] = {MTK_DISP_BLANK_POWERDOWN, MTK_DISP_BLANK_UNBLANK};
+	int blank_value = *((int *)data);
 
 	/* skip if policy is not enable */
 	if (!chrlmt_lcmoff_policy_enable)
 		return 0;
-	pr_info("enter bcct lcmoff fb!\n");
-	blank = *(int *)evdata->data;
-	mtk_cooler_bcct_dprintk("%s: blank = %d, event = %lu\n",
-						__func__, blank, event);
+	pr_info("Enter bcct_v1 lcmoff fb!\n");
 
-	switch (blank) {
-	/* LCM ON */
-	case FB_BLANK_UNBLANK:
-		bcct_lcmoff_switch(1);
-		break;
-		/* LCM OFF */
-	case FB_BLANK_POWERDOWN:
-		bcct_lcmoff_switch(0);
-		break;
-	default:
-		break;
+	if ((blank_enum[1] == blank_value) && (event_enum[1] == event)) {
+		bcct_lcmoff_switch(1);/* LCM ON */
+	} else if ((blank_enum[0] == blank_value) && (event_enum[0] == event)) {
+		bcct_lcmoff_switch(0);/* LCM OFF */
+	} else {
+		mtk_cooler_bcct_dprintk("cooler_bcct_v1 %s: blank_value = %d, event = %lu\n",__func__,
+					                    blank_value, event);
 	}
-	pr_info("exit bcct lcmoff fb!\n");
+	pr_info("Exit bcct_v1 lcmoff fb!\n");
 	return 0;
 }
 
