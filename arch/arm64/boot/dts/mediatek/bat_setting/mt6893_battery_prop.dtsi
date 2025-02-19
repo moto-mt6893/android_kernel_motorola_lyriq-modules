@@ -61,7 +61,7 @@
 	/* compensate The resistance of PCB */
 	com-r-fg-value = <(0)>;
 	/* compensate R_sense resistance */
-	enable_tmp_intr_suspend = <(0)>;
+	enable-tmp-intr-suspend = <(0)>;
 	/* Enable update temp when suspend */
 	active-table = <(6)>;
 	/* Table numbers per battery */
