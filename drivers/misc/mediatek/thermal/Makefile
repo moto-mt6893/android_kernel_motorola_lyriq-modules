@@ -252,8 +252,7 @@ thermal_monitor-y += v1/src/mtk_thermal_ipi_mt6893.o
 thermal_monitor-y += v1/src/mtk_lvts_tc_mt6893.o
 thermal_monitor-y += v1/src/mtk_tc_wrapper_mt6893.o
 thermal_monitor-y += v1/src/mtk_pmic_efuse_mt6893.o
-#MMI_STOPSHIP <vtskin>: temp solution for deadlock issue.
-#thermal_monitor-y += v1/src/vtskin_temp.o
+thermal_monitor-y += v1/src/vtskin_temp.o
 
 endif
 
