@@ -92,8 +92,10 @@ void enable_gauge_irq(struct mtk_gauge *gauge,
 {
 	struct irq_desc *desc;
 
-	if (irq >= GAUGE_IRQ_MAX || gauge->gm->disableGM30)
+	if (irq >= GAUGE_IRQ_MAX || gauge->gm->disableGM30) {
+		bm_warn(gauge->gm, "[%s]: FG daemon is disabled. and it is normal for 3rd FG.\n", __func__);
 		return;
+	}
 
 	desc = irq_to_desc(gauge->irq_no[irq]);
 	bm_debug(gauge->gm, "%s irq_no:%d:%d depth:%d\n",
