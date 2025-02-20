@@ -5365,7 +5365,18 @@ static int psy_charger_get_property(struct power_supply *psy,
 		val->intval = get_charger_zcv(info, chg);
 		break;
 	case POWER_SUPPLY_PROP_USB_TYPE:
-		chr_debug("not yet\n");
+		switch (info->pd_type) {
+			case MTK_PD_CONNECT_PE_READY_SNK_APDO:
+				val->intval = POWER_SUPPLY_USB_TYPE_PD_PPS;
+				break;
+			case MTK_PD_CONNECT_PE_READY_SNK:
+			case MTK_PD_CONNECT_PE_READY_SNK_PD30:
+				val->intval = POWER_SUPPLY_USB_TYPE_PD;
+				break;
+			default:
+				val->intval = info->usb_type;
+				break;
+		}
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_NOW:
 		ret = charger_dev_get_adc(info->chg1_dev,

@@ -526,6 +526,34 @@
         mmi,wlc-rx-mitigation = <(-1) 2500000 2000000 1500000 1200000
                                 1000000 700000 500000>;
 };
+
+&pe2 {
+	compatible = "mediatek,charger,pe2";
+        gauge = <&mm8013>;
+	/* PE 2.0 */
+	pe20_ichg_level_threshold = <1000000>; /* uA */
+	ta_start_battery_soc = <0>;
+	ta_stop_battery_soc = <85>;
+	min_charger_voltage = <4600000>;
+
+	/* cable measurement impedance */
+	cable_imp_threshold = <699>;
+	vbat_cable_imp_threshold = <3900000>; /* uV */
+
+	/* single charger */
+	sc_input_current = <3000000>;
+	sc_charger_current = <3000000>;
+
+	/* dual charger in series*/
+	dcs_input_current = <3200000>;
+	dcs_chg1_charger_current = <1500000>;
+	dcs_chg2_charger_current = <1500000>;
+
+	dual_polling_ieoc = <450000>;
+        slave_mivr_diff = <100000>;
+        vbat_threshold = <4150>;
+};
+
 /*
 &ap_ntc {
         polling-delay = <5000>;
