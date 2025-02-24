@@ -458,12 +458,20 @@ static struct mtk_panel_params ext_params_60hz = {
 
 	},
 
-	.dyn_fps = {
+	.dyn = {
 		.switch_en = 0,
-		.vact_timing_fps = 60,
-		.data_rate = 1156,
+		//.pll_clk = 600,
+		.vfp_lp_dyn = 3480,
+		.hfp = 60,
+		.vfp = 3480,
 	},
-
+	.dyn_fps = {
+		.switch_en = 1,
+		.dfps_cmd_grp_table[0] = {2, {0x6c, 0x00} },
+		.dfps_cmd_grp_table[1] = {2, {0x62, 0x00} },
+		.dfps_cmd_grp_size = 2,
+	},
+	.change_fps_by_vfp_send_cmd = 1,
 	.panel_cellid_reg = 0x5a,
 	.panel_cellid_offset_reg = 0x65,
 	.panel_cellid_len = 23,
@@ -527,12 +535,22 @@ static struct mtk_panel_params ext_params_90hz = {
 
 	},
 
-	.dyn_fps = {
+	.dyn = {
 		.switch_en = 0,
-		.vact_timing_fps = 90,
-		.data_rate = 1156,
+		//.pll_clk = 600,
+		.vfp_lp_dyn = 1512,
+		.hfp = 60,
+		.vfp = 1512,
 	},
-
+	.dyn_fps = {
+		.switch_en = 1,
+		.dfps_cmd_grp_table[0] = {2, {0x6c, 0x01} },
+		.dfps_cmd_grp_table[1] = {2, {0x62, 0x01} },
+		.dfps_cmd_grp_table[2] = {3, {0xf0, 0xaa, 0x10} },
+		.dfps_cmd_grp_table[3] = {14, {0xb1, 0x01, 0x55, 0x00, 0x18, 0x0d, 0x98, 0x00, 0x01, 0x55, 0x00, 0x18, 0x05, 0xe8} },
+		.dfps_cmd_grp_size = 4,
+	},
+	.change_fps_by_vfp_send_cmd = 1,
 	.panel_cellid_reg = 0x5a,
 	.panel_cellid_offset_reg = 0x65,
 	.panel_cellid_len = 23,
@@ -594,12 +612,23 @@ static struct mtk_panel_params ext_params_120hz = {
 		.rc_tgt_offset_lo = 3,
 
 	},
-	.dyn_fps = {
-		.switch_en = 0,
-		.vact_timing_fps = 120,
-		.data_rate = 1156,
-	},
 
+	.dyn = {
+		.switch_en = 0,
+		//.pll_clk = 600,
+		.vfp_lp_dyn = 528,
+		.hfp = 60,
+		.vfp = 528,
+	},
+	.dyn_fps = {
+		.switch_en = 1,
+		.dfps_cmd_grp_table[0] = {2, {0x6c, 0x01} },
+		.dfps_cmd_grp_table[1] = {2, {0x62, 0x00} },
+		.dfps_cmd_grp_table[2] = {3, {0xf0, 0xaa, 0x10} },
+		.dfps_cmd_grp_table[3] = {14, {0xb1, 0x01, 0x55, 0x00, 0x18, 0x0d, 0x98, 0x00, 0x01, 0x55, 0x00, 0x18, 0x02, 0x10} },
+		.dfps_cmd_grp_size = 4,
+	},
+	.change_fps_by_vfp_send_cmd = 1,
 	.panel_cellid_reg = 0x5a,
 	.panel_cellid_offset_reg = 0x65,
 	.panel_cellid_len = 23,
@@ -662,12 +691,20 @@ static struct mtk_panel_params ext_params_144hz = {
 		.rc_tgt_offset_lo = 3,
 
 	},
-	.dyn_fps = {
+	.dyn = {
 		.switch_en = 0,
-		.vact_timing_fps = 144,
-		.data_rate = 1156,
+		//.pll_clk = 600,
+		.vfp_lp_dyn = 36,
+		.hfp = 60,
+		.vfp = 36,
 	},
-
+	.dyn_fps = {
+		.switch_en = 1,
+		.dfps_cmd_grp_table[0] = {2, {0x6c, 0x02} },
+		.dfps_cmd_grp_table[1] = {2, {0x62, 0x00} },
+		.dfps_cmd_grp_size = 2,
+	},
+	.change_fps_by_vfp_send_cmd = 1,
 	.panel_cellid_reg = 0x5a,
 	.panel_cellid_offset_reg = 0x65,
 	.panel_cellid_len = 23,
@@ -725,7 +762,7 @@ static int panel_ext_reset(struct drm_panel *panel, int on)
 
 	return 0;
 }
-#if 0
+
 struct drm_display_mode *get_mode_by_id(struct drm_connector *connector,
 	unsigned int mode)
 {
@@ -739,30 +776,29 @@ struct drm_display_mode *get_mode_by_id(struct drm_connector *connector,
 	}
 	return NULL;
 }
-#endif
+
 static int mtk_panel_ext_param_set(struct drm_panel *panel,
 			struct drm_connector *connector, unsigned int mode)
 {
 	struct mtk_panel_ext *ext = find_panel_ext(panel);
 	int ret = 0;
-	// struct drm_display_mode *m = get_mode_by_id(connector, mode);
+	struct drm_display_mode *m = get_mode_by_id(connector, mode);
 	struct lcm *ctx = panel_to_lcm(panel);
-
-	if (mode == 0) {
-		ext->params = &ext_params_60hz;
-		ctx->current_fps = 60;
-	}
-	else if (mode == 1) {
-		ext->params = &ext_params_144hz;
-		ctx->current_fps = 144;
-	}
-	else if (mode == 2) {
+	if (drm_mode_vrefresh(m) == 120) {
 		ext->params = &ext_params_120hz;
 		ctx->current_fps = 120;
 	}
-	else if (mode == 3) {
+	else if (drm_mode_vrefresh(m) == 144) {
+		ext->params = &ext_params_144hz;
+		ctx->current_fps = 144;
+	}
+	else if (drm_mode_vrefresh(m) == 90) {
 		ext->params = &ext_params_90hz;
 		ctx->current_fps = 90;
+	}
+	else if (drm_mode_vrefresh(m) == 60) {
+		ext->params = &ext_params_60hz;
+		ctx->current_fps = 60;
 	}
 	else
 		ret = 1;
