@@ -1315,7 +1315,7 @@ static int bs_psy_get_property(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
 #ifdef CONFIG_EXTERN_FG_MM8013
-		val->intval = bm->gm1->cur_bat_temp * 10;
+		val->intval = bm->gm1->tbat * 10;
 #else
 		count = 0;
 		if (bm->gm1 != NULL)
