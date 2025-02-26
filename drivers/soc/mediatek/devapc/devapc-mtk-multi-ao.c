@@ -1007,7 +1007,7 @@ static void devapc_extra_handler(int slave_type, const char *vio_master,
 	}
 
 	/* Severity level */
-	if (dbg_stat->enable_KE && (ret_cb != DEVAPC_NOT_KE)) {
+	if (dbg_stat->enable_KE && (ret_cb != DEVAPC_NOT_KE) && (strcmp(dispatch_key,"MMSYS_DISP"))) {
 		pr_info(PFX "Device APC Violation Issue/%s", dispatch_key);
 		BUG_ON(id != INFRA_SUBSYS_CONN && id != INFRA_SUBSYS_PCIE);
 
