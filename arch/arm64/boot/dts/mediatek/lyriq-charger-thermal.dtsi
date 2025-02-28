@@ -29,10 +29,6 @@
                 mmi,adc-channel-vbat = <100>;
 };
 
-&mtk_gauge {
-        DISABLE_MTKBATTERY=<1>;
-};
-
 &lk_charger {
         /* charging current */
         usb_charger_current = <500000>;
