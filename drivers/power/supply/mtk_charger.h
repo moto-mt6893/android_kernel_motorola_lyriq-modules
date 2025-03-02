@@ -654,6 +654,9 @@ struct mtk_charger {
 	struct mutex mmi_mux_lock;
 
 	struct moto_chg_tcmd_client chg_tcmd_client;
+#ifdef CONFIG_MOTO_GET_TEMPERATURE_FROM_MTK
+	struct power_supply  *temp_psy;
+#endif
 	/* adapter switch control */
 	int protocol_state;
 	int ta_capability;

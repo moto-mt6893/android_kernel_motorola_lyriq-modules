@@ -4000,8 +4000,12 @@ static void mmi_charger_check_status(struct mtk_charger *info)
 	} else
 		batt_soc = val.intval;
 
+#ifdef CONFIG_MOTO_GET_TEMPERATURE_FROM_MTK
+	rc = power_supply_get_property(info->temp_psy, POWER_SUPPLY_PROP_TEMP, &val);
+#else
 	rc = mmi_get_prop_from_battery(info,
 				POWER_SUPPLY_PROP_TEMP, &val);
+#endif
 	if (rc < 0) {
 		pr_err("[%s]Error getting Batt Temperature rc = %d\n", __func__, rc);
 		goto end_check;
@@ -6075,6 +6079,11 @@ static int mtk_charger_probe(struct platform_device *pdev)
 		chr_err("%s: devm power fail to get bc12_psy\n", __func__);
 #endif
 
+#ifdef CONFIG_MOTO_GET_TEMPERATURE_FROM_MTK
+	info->temp_psy = power_supply_get_by_name("battery");
+	if (IS_ERR_OR_NULL(info->temp_psy))
+		chr_err("%s: devm power fail to get temp_psy\n", __func__);
+#endif
 	info->bat_psy = devm_power_supply_get_by_phandle(&pdev->dev,
 		"gauge");
 	if (IS_ERR_OR_NULL(info->bat_psy))
