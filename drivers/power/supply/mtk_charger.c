@@ -4052,12 +4052,20 @@ static void mmi_charger_check_status(struct mtk_charger *info)
 		max_fv_mv = mmi_get_ffc_fv(info, batt_temp);
 		if (max_fv_mv == 0)
 			max_fv_mv = mmi->base_fv_mv;
+#ifdef CONFIG_EXTERN_FG_MM8013
+		val.intval = false;
+#elif
 		val.intval = true;
+#endif
 		mmi_set_prop_to_battery(info, POWER_SUPPLY_PROP_TYPE, &val);
 	} else {
 		max_fv_mv = mmi->base_fv_mv;
 		info->mmi.chrg_iterm =  info->mmi.back_chrg_iterm;
+#ifdef CONFIG_EXTERN_FG_MM8013
+		val.intval = true;
+#elif
 		val.intval = false;
+#endif
 		mmi_set_prop_to_battery(info, POWER_SUPPLY_PROP_TYPE, &val);
 	}
 	/* Determine Next State */
