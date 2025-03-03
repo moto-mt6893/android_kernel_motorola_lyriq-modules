@@ -3646,13 +3646,21 @@ static int mmi_get_battery_age(void)
 {
 	struct mtk_gauge *gauge;
 	struct power_supply *psy;
+	union power_supply_propval val = {0};
 
+#ifdef CONFIG_EXTERN_FG_MM8013
+	psy = power_supply_get_by_name("bms");
+#else
 	psy = power_supply_get_by_name("mtk-gauge");
+#endif
 	if (psy == NULL) {
 		pr_err("[%s]psy is not rdy\n", __func__);
 		return 100;
 	}
-
+#ifdef CONFIG_EXTERN_FG_MM8013
+	power_supply_get_property(psy, POWER_SUPPLY_PROP_SCOPE, &val);
+	return val.intval;
+#endif
 	gauge = (struct mtk_gauge *)power_supply_get_drvdata(psy);
 	if (gauge == NULL) {
 		pr_err("[%s]mtk_gauge is not rdy\n", __func__);
