@@ -361,4 +361,11 @@ config WIRELESS_DISABLE_PMIC_ONLINE
 	help
 	  The PMIC is disable durging wireless charging.
 
+config MOTO_GET_TEMPERATURE_FROM_MTK
+    tristate "Moto uses MTK's channel to get the temperature"
+    default n
+	help
+	  When the temperature of the custom third-party fuel gauge
+	  is inaccurate, use the MTK temperature acquisition channel.
+
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"
