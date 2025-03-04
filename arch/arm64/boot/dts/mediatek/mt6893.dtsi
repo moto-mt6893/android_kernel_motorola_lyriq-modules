@@ -4060,7 +4060,7 @@ cpus {
 				&smi_larb16 &smi_larb17 &smi_larb18 &smi_larb19
 				&smi_larb20>;
 			mediatek,commons-supply = <&smi_common>, <&mdp_smi_common>;
-			mmqos-state = <0x7>;
+			mmqos-state = <0x0>;
 			mmqos-log-level = <0>;
 			clocks = <&topckgen_clk CLK_TOP_DISP_SEL>, <&topckgen_clk CLK_TOP_MDP_SEL>;
 			clock-names = "mm", "mdp";
