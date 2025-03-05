@@ -4009,6 +4009,13 @@ static void mmi_charger_check_status(struct mtk_charger *info)
 		batt_soc = val.intval;
 
 #ifdef CONFIG_MOTO_GET_TEMPERATURE_FROM_MTK
+	if (!info->temp_psy){
+		info->temp_psy = power_supply_get_by_name("battery");
+		if(!info->temp_psy){
+			pr_err("%s: Error getting battery power sypply\n", __func__);
+			goto end_check;
+		}
+	}
 	rc = power_supply_get_property(info->temp_psy, POWER_SUPPLY_PROP_TEMP, &val);
 #else
 	rc = mmi_get_prop_from_battery(info,
