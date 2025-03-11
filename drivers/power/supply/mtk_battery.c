@@ -3123,8 +3123,7 @@ static int system_pm_notify(struct notifier_block *nb,
 	case PM_RESTORE_PREPARE:
 	case PM_SUSPEND_PREPARE:
 
-		if (!mutex_trylock(&gm->fg_update_lock))
-			return NOTIFY_BAD;
+		mutex_lock(&gm->fg_update_lock);
 		gm->in_sleep = true;
 		mutex_unlock(&gm->fg_update_lock);
 		break;
