@@ -40,5 +40,6 @@ struct vtskin_temp_tz {
 };
 
 extern struct vtskin_data *plat_vtskin_info;
+extern struct thermal_zone_device *get_tzd(const char *ref_name);
 
 #endif

@@ -829,13 +829,8 @@ static int mtktsvtskin_get_temp(struct thermal_zone_device *thermal, int *temp)
 			return -EINVAL;
 		}
 		pr_notice("vtskin_get_temp sensor_name   %s\n", sensor_name);
-		if(!mutex_trylock(&vtskin_mutex_policy)) {
-			*temp = THERMAL_TEMP_INVALID;
-			return 0;
-		} else {
-			tzd = thermal_zone_get_zone_by_name(sensor_name);
-			mutex_unlock(&vtskin_mutex_policy);
-		}
+        tzd = get_tzd(sensor_name); // Updated the API to get thermal zone device
+
 		if (IS_ERR_OR_NULL(tzd) || !tzd->ops->get_temp) {
 			pr_notice("get %s temp fail\n", sensor_name);
 			*temp = THERMAL_TEMP_INVALID;
@@ -2131,6 +2126,7 @@ void vtskin_exit(void)
 	mtktsvtskin1_unregister_thermal();
 	mtktsvtskin2_unregister_thermal();
 	mtktsvtskin3_unregister_thermal();
+	platform_driver_unregister(&vtskin_driver);
 }
 
 MODULE_AUTHOR("Utkarsh Tripathi <utkarsh.tripathi@mediatek.com>");

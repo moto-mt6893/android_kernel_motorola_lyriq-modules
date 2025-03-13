@@ -1422,6 +1422,63 @@ static struct thermal_zone_params mtk_zone_params = {
 	.governor_name = "bang_bang",
 };
 
+
+
+struct tzd_entry {
+    char ref_name[THERMAL_NAME_LENGTH];
+    struct thermal_zone_device *tzd;
+    struct list_head list;
+};
+
+static LIST_HEAD(tzd_list);
+
+int add_tzd(struct thermal_zone_device *tzd) {
+    struct tzd_entry *entry;
+
+    if (IS_ERR_OR_NULL(tzd)) {
+        pr_info("get %s for thermal zone fail\n", tzd->type);
+        return -EINVAL;
+    }
+
+    entry = kmalloc(sizeof(*entry), GFP_KERNEL);
+    if (!entry)
+        return -ENOMEM;
+
+    strlcpy(entry->ref_name, tzd->type, THERMAL_NAME_LENGTH);
+    entry->tzd = tzd;
+    INIT_LIST_HEAD(&entry->list);
+    list_add_tail(&entry->list, &tzd_list);
+
+    return 0;
+}
+
+int remove_tzd(struct thermal_zone_device *tzd) {
+    struct tzd_entry *entry, *tmp;
+
+    list_for_each_entry_safe(entry, tmp, &tzd_list, list) {
+        if (strcmp(entry->ref_name, tzd->type) == 0) {
+            list_del(&entry->list);
+            kfree(entry);
+            return 0;
+        }
+    }
+
+    return -ENOENT;
+}
+
+struct thermal_zone_device *get_tzd(const char *ref_name) {
+    struct tzd_entry *entry;
+
+    list_for_each_entry(entry, &tzd_list, list) {
+        if (strcmp(entry->ref_name, ref_name) == 0) {
+            return entry->tzd;
+        }
+    }
+
+    return NULL;
+}
+EXPORT_SYMBOL(get_tzd);
+
 /*mtk thermal zone register function */
 struct thermal_zone_device *mtk_thermal_zone_device_register_wrapper(char *type, struct thermal_trip *trips,
 int num_trip, void *devdata,const struct thermal_zone_device_ops *ops,int tc1, int tc2,
@@ -1492,6 +1549,7 @@ int passive_delay_jiffies,int polling_delay_jiffies)
 	/* registered the last_temperature to local arra */
 	mutex_lock(&MTM_GET_TEMP_LOCK);
 	{
+		add_tzd(tz);
 		if (tzidx >= 0 && tzidx < MTK_THERMAL_SENSOR_COUNT)
 			tz_last_values[tzidx] = &(tz->temperature);
 	}
@@ -1568,6 +1626,10 @@ void mtk_thermal_zone_device_unregister_wrapper(struct thermal_zone_device *tz)
 
 	thermal_zone_device_unregister(tz);
 
+	mutex_lock(&MTM_GET_TEMP_LOCK);
+	if (tz)
+		remove_tzd(tz);
+	mutex_unlock(&MTM_GET_TEMP_LOCK);
 	THRML_LOG("%s- tz: %s\n", __func__, type);
 
 	/* free memory */

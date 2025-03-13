@@ -106,6 +106,7 @@ enum mtk_thermal_sensor_id {
 
 extern int mtk_thermal_get_temp(enum mtk_thermal_sensor_id id);
 extern struct proc_dir_entry *mtk_thermal_get_proc_drv_therm_dir_entry(void);
+extern struct thermal_zone_device *get_tzd(const char *ref_name);
 
 /* This API function is implemented in mediatek/kernel/drivers/leds/leds.c */
 #if IS_ENABLED(CONFIG_LEDS_MTK_DISP) || IS_ENABLED(CONFIG_LEDS_MTK_PWM) \
