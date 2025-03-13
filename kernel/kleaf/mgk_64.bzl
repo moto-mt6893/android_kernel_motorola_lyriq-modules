@@ -1130,6 +1130,7 @@ def get_overlay_modules_list():
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/input/misc/goodix_fod_mmi_u:goodix_fod_mmi_u")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/awinic/aw862x_v:aw862x_v")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/sx937x:sx937x_sar")
+        mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/power/qpnp_adaptive_charge:qpnp_adaptive_charge")
     if "auto.config" in DEFCONFIG_OVERLAYS:
         mgk_64_platform_device_modules.update({"drivers/clk/mediatek/clk-mt6991-ivi.ko":"mt6991"})
         mgk_64_platform_device_modules.update({"drivers/soc/mediatek/mtk-scpsys-mt6991-ivi.ko":"mt6991"})
