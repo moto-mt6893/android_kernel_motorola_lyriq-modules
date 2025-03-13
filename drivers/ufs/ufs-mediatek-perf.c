@@ -1090,6 +1090,7 @@ void ufs_mtk_trace_vh_perf_huristic_ctrl(void *data, struct ufs_hba *hba,
 		lrbp->cmd = NULL;
 		*err = SCSI_MLQUEUE_HOST_BUSY;
 		scsi_dma_unmap(cmd);
+		ufshcd_release(hba);
 	}
 }
 
