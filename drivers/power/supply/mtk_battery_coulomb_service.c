@@ -490,7 +490,7 @@ static int system_pm_notify(struct notifier_block *nb,
 	case PM_HIBERNATION_PREPARE:
 	case PM_RESTORE_PREPARE:
 	case PM_SUSPEND_PREPARE:
-		mutex_lock(&cs->coulomb_lock)
+		mutex_lock(&cs->coulomb_lock);
 		atomic_set(&cs->in_sleep, 1);
 		mutex_unlock(&cs->coulomb_lock);
 		bm_err(gm, "%s %s normal:%lu\n", cs->name, __func__, mode);
