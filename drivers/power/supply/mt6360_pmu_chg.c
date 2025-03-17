@@ -892,9 +892,7 @@ static int mt6360_chgdet_post_process(struct mt6360_chg_info *mci)
 		dev_info(mci->dev,
 			  "%s: Charger Type: NONSTANDARD_CHARGER\n", __func__);
 		mci->psy_desc.type = POWER_SUPPLY_TYPE_USB;
-#if !IS_ENABLED (CONFIG_WIRELESS_DISABLE_PMIC_ONLINE)
 		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_DCP;
-#endif
 		break;
 	case MT6360_CHG_TYPE_CDP:
 		dev_info(mci->dev,
