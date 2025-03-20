@@ -49,6 +49,7 @@
 		goodix,interpolation-ctrl;
 		goodix,sample-ctrl;
 		goodix,edge-ctrl;
+		goodix,gesture-wait-pm;
 		mmi,enable-gestures;
 		mmi,supported_gesture_type = <0x07>;
 		mmi,power-off-suspend;
