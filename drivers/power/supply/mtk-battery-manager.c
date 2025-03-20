@@ -1334,8 +1334,17 @@ static int bs_psy_get_property(struct power_supply *psy,
 #endif
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
+#ifdef CONFIG_EXTERN_FG_MM8013
+		ret = mmi_get_prop_from_bms(psp,&prop);
+		if (ret < 0) {
+			pr_err("[%s]Error getting BMS Current ret = %d\n", __func__, ret);
+		}
+		else {
+			val->intval = prop.intval;
+		}
+#else
 		val->intval = check_cap_level(bs_data->bat_capacity);
-		pr_err("%s jiacq4---get_capacity_level = %d", __func__, val->intval);
+#endif
 		break;
 	case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
 		/* full or unknown must return 0 */
