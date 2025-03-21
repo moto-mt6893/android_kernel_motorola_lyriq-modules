@@ -18,7 +18,7 @@
 
 static int mot_sensor_debug = 1;
 #define LOG_INF(format, args...)        do { if (mot_sensor_debug   ) { pr_err(PFX "[%s] " format, __func__,##args); } } while(0)
-#define LOG_DEBUG(format, args...)        do { if (mot_sensor_debug   ) { pr_err(PFX "[%s] " format, __func__,##args); } } while(0)
+#define LOG_DEBUG(format, args...)        do { if (mot_sensor_debug   ) { pr_debug(PFX "[%s] " format, __func__,##args); } } while(0)
 #define LOG_INF_N(format, args...)   pr_warn(PFX "[%s] " format, __func__, ##args)
 #define LOG_ERROR(format, args...)   pr_err(PFX "[%s] " format, __func__, ##args)
 

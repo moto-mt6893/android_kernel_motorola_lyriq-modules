@@ -264,7 +264,7 @@ static void write_cmos_sensor_8(kal_uint32 addr, kal_uint32 para)
 
 static void set_dummy(void)
 {
-	LOG_INF("dummyline = %d, dummypixels = %d\n",
+	LOG_DEBUG("dummyline = %d, dummypixels = %d\n",
 		imgsensor.dummy_line, imgsensor.dummy_pixel);
 	write_cmos_sensor(0x020e, imgsensor.frame_length & 0xFFFF);
 	write_cmos_sensor(0x0206, imgsensor.line_length/4);
@@ -315,7 +315,7 @@ static void write_shutter(kal_uint32 shutter)
 		imgsensor.frame_length = imgsensor_info.max_frame_length;
 	spin_unlock(&imgsensor_drv_lock);
 
-	LOG_INF("shutter = %d, imgsensor.frame_length = %d, imgsensor.min_frame_length = %d\n",
+	LOG_DEBUG("shutter = %d, imgsensor.frame_length = %d, imgsensor.min_frame_length = %d\n",
 		shutter, imgsensor.frame_length, imgsensor.min_frame_length);
 
 
@@ -342,7 +342,7 @@ static void write_shutter(kal_uint32 shutter)
 	write_cmos_sensor_8(0x020D, (shutter & 0xFF0000) >> 16 );
 	write_cmos_sensor(0x020A, shutter);
 
-	LOG_INF("frame_length = %d , shutter = %d \n", imgsensor.frame_length, shutter);
+	LOG_DEBUG("frame_length = %d , shutter = %d \n", imgsensor.frame_length, shutter);
 
 
 }	/*	write_shutter  */
@@ -367,7 +367,7 @@ static void set_shutter(kal_uint32 shutter)
 {
 	unsigned long flags;
 
-	LOG_INF("set_shutter");
+	LOG_DEBUG("set_shutter");
 	spin_lock_irqsave(&imgsensor_drv_lock, flags);
 	imgsensor.shutter = shutter;
 	spin_unlock_irqrestore(&imgsensor_drv_lock, flags);
@@ -487,7 +487,7 @@ static kal_uint16 set_gain(kal_uint16 gain)
     spin_lock(&imgsensor_drv_lock);
     imgsensor.gain = reg_gain;
     spin_unlock(&imgsensor_drv_lock);
-    LOG_INF("gain = %d , reg_gain = 0x%x\n ", gain, reg_gain);
+    LOG_DEBUG("gain = %d , reg_gain = 0x%x\n ", gain, reg_gain);
 
     write_cmos_sensor_8(0x0213,reg_gain);
 	return gain;
@@ -1026,7 +1026,7 @@ static kal_uint32 set_video_mode(UINT16 framerate)
 static kal_uint32 set_auto_flicker_mode(kal_bool enable,
 			UINT16 framerate)
 {
-	LOG_INF("enable = %d, framerate = %d ", enable, framerate);
+	LOG_DEBUG("enable = %d, framerate = %d ", enable, framerate);
 	spin_lock(&imgsensor_drv_lock);
 	if (enable)
 		imgsensor.autoflicker_en = KAL_TRUE;
@@ -1043,7 +1043,7 @@ static kal_uint32 set_max_framerate_by_scenario(
 {
 	kal_uint32 frame_length;
 
-	LOG_INF("scenario_id = %d, framerate = %d\n",
+	LOG_DEBUG("scenario_id = %d, framerate = %d\n",
 				scenario_id, framerate);
 
 	switch (scenario_id) {
@@ -1241,7 +1241,7 @@ static kal_uint32 feature_control(
 	MSDK_SENSOR_REG_INFO_STRUCT *sensor_reg_data =
 		(MSDK_SENSOR_REG_INFO_STRUCT *) feature_para;
 
-	LOG_INF("feature_id = %d\n", feature_id);
+	LOG_DEBUG("feature_id = %d\n", feature_id);
 	switch (feature_id) {
 	case SENSOR_FEATURE_GET_GAIN_RANGE_BY_SCENARIO:
 		*(feature_data + 1) = imgsensor_info.min_gain;
