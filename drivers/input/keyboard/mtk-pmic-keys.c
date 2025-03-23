@@ -350,10 +350,18 @@ static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
 	input_report_key(info->keys->input_dev, info->keycode, pressed);
 	input_sync(info->keys->input_dev);
 
-	if (pressed && info->suspend_lock)
+	if (pressed && info->suspend_lock){
+		//MMI_STOPSHIP kernel: London mtk-pmic-keys debug
+		dev_info(info->keys->dev, "Lyriq awake log pressed start!\n");
 		__pm_stay_awake(info->suspend_lock);
-	else if (info->suspend_lock)
+		dev_info(info->keys->dev, "Lyriq awake log pressed done !\n");
+	}
+	else if (info->suspend_lock){
+		//MMI_STOPSHIP kernel: London mtk-pmic-keys debug
+		dev_info(info->keys->dev, "Lyriq relax log relax start!\n");
 		__pm_relax(info->suspend_lock);
+		dev_info(info->keys->dev, "Lyriq relax log relax done !\n");
+	}
 	dev_info(info->keys->dev, "(%s) key =%d using PMIC\n",
 		 pressed ? "pressed" : "released", info->keycode);
 
