@@ -210,7 +210,7 @@ int mt6885_afe_enable_clock(struct mtk_base_afe *afe)
 	struct mt6885_afe_private *afe_priv = afe->platform_priv;
 	int ret = 0;
 
-	dev_info(afe->dev, "%s()\n", __func__);
+	dev_dbg(afe->dev, "%s()\n", __func__);
 
 	ret = clk_prepare_enable(afe_priv->clk[CLK_INFRA_SYS_AUDIO]);
 	if (ret) {
@@ -286,7 +286,7 @@ void mt6885_afe_disable_clock(struct mtk_base_afe *afe)
 {
 	struct mt6885_afe_private *afe_priv = afe->platform_priv;
 
-	dev_info(afe->dev, "%s()\n", __func__);
+	dev_dbg(afe->dev, "%s()\n", __func__);
 
 	clk_disable_unprepare(afe_priv->clk[CLK_AFE]);
 
