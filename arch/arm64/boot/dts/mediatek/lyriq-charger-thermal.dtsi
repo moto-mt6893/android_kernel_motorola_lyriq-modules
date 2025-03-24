@@ -164,60 +164,6 @@
 	io-channel-names = "thermistor-ch8";
 };
 
-//MMI_STOPSHIP kernel: London bringup
-//&bat_gm30 {
-//        io-channels = <&auxadc 5>;
-//        io-channel-names = "batteryID-channel";
-//        EMBEDDED_SEL = <(1)>;   /* embedded battery.*/
-//        DIFFERENCE_FULLOCV_ITH = <(250)>;       /*Charging termination current.*/
-//        SHUTDOWN_1_TIME = <(15)>;
-//        CAR_TUNE_VALUE = <(100)>;
-//
-//        df-serialnum = "SB18C77226";
-//        g_Q_MAX_row = <4>;
-//        g_Q_MAX_col = <10>;
-//        g_Q_MAX = <
-//                /*bat1,   bat2,   bat3,    bat4*/
-//                4905 4960 2490 1965/*T0*/
-//                4943 5017 2468 1984/*T1*/
-//                4955 5033 2310 1946/*T2*/
-//                4936 5009 1858 1873/*T3*/
-//                4937 5007 1843 1851/*T4*/
-//                4937 5007 1533 1541/*T5*/
-//                4937 5007 1523 1531/*T6*/
-//                4937 5007 1513 1521/*T7*/
-//                4937 5007 1503 1511/*T8*/
-//                4937 5007 1493 1501/*T9*/
-//        >;
-//        g_Q_MAX_H_CURRENT_row = <4>;
-//        g_Q_MAX_H_CURRENT_col = <10>;
-//        g_Q_MAX_H_CURRENT = <
-//                /*bat1,   bat2,   bat3,    bat4*/
-//                4905 4960 2490 1965/*T0*/
-//                4943 5017 2468 1984/*T1*/
-//                4955 5033 2310 1946/*T2*/
-//                4936 5009 1858 1873/*T3*/
-//                4937 5007 1843 1851/*T4*/
-//                4937 5007 1533 1541/*T5*/
-//                4937 5007 1523 1531/*T6*/
-//                4937 5007 1513 1521/*T7*/
-//                4937 5007 1503 1511/*T8*/
-//                4937 5007 1493 1501/*T9*/
-//        >;
-//        g_FG_PSEUDO100_T0 = <(98)>;
-///*      Pseudo 100% percentage at T0*/
-//        g_FG_PSEUDO100_T1 = <(98)>;
-///*      Pseudo 100% percentage at T1*/
-//        g_FG_PSEUDO100_T2 = <(95)>;
-///*      Pseudo 100% percentage at T2*/
-//        g_FG_PSEUDO100_T3 = <(95)>;
-///*      Pseudo 100% percentage at T3*/
-//        g_FG_PSEUDO100_T4 = <(95)>;
-///*      Pseudo 100% percentage at T4*/
-//        #include "bat_setting/austin_batterytable_jk50_alt_5000mah.dtsi"
-//        #include "bat_setting/austin_batterytable_jk50_scud_5000mah.dtsi"
-//};
-
 /*
 &pdc {
         sc_input_current = <3000000>;

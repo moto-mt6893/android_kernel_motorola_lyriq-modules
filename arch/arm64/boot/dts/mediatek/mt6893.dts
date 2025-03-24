@@ -922,7 +922,6 @@
         /* reserved for overlay by odm */
     };
 
-//MMI_STOPSHIP kernel: London bringup
     /* NFC start */
     nfc:nfc {
         compatible = "mediatek,nfc-gpio-v2";
