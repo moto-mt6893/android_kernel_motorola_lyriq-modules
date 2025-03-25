@@ -701,6 +701,8 @@ static int pe2_sc_set_charger(struct chg_alg_device *alg)
 			pe2->sc_charger_current)
 			pe2->charging_current1 =
 				pe2->charging_current_limit1;
+		else
+			pe2->charging_current1 = pe2->sc_charger_current;
 		ret = pe2_hal_get_min_charging_current(alg, CHG1, &ichg1_min);
 		if (ret != -EOPNOTSUPP &&
 			pe2->charging_current_limit1 < ichg1_min)
