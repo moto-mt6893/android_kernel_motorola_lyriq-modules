@@ -5325,6 +5325,9 @@ static const enum power_supply_property charger_psy_properties[] = {
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
 	POWER_SUPPLY_PROP_TEMP,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
+#ifdef CONFIG_THERMAL_V1_CHARGER_PUMP_CURRENT_LIMIT
+	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT,
+#endif
 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
 	POWER_SUPPLY_PROP_VOLTAGE_BOOT,
 	POWER_SUPPLY_PROP_USB_TYPE,
@@ -5572,6 +5575,13 @@ static int psy_charger_set_property(struct power_supply *psy,
 			val->intval & UNLIMIT_CURRENT_MASK ?
 			-1 : val->intval;
 		break;
+#ifdef CONFIG_THERMAL_V1_CHARGER_PUMP_CURRENT_LIMIT
+	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT:
+		info->chg_data[idx].thermal_charging_current_limit_cp =
+			val->intval & UNLIMIT_CURRENT_MASK ?
+			-1 : val->intval;
+		break;
+#endif
 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
 		if (val->intval & USB_CURRENT_MASK) {
 			if (info->en_cts_mode)
@@ -6062,6 +6072,9 @@ static int mtk_charger_probe(struct platform_device *pdev)
 		info->chg_data[i].input_current_limit_by_aicl = -1;
 		info->chg_data[i].moto_chg_tcmd_ichg = -1;
 		info->chg_data[i].moto_chg_tcmd_ibat = -1;
+#ifdef CONFIG_THERMAL_V1_CHARGER_PUMP_CURRENT_LIMIT
+		info->chg_data[i].thermal_charging_current_limit_cp = -1;
+#endif
 	}
 	info->enable_hv_charging = true;
 	info->psy_desc1.name = "mtk-master-charger";

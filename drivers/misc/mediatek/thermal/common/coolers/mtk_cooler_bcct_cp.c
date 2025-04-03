@@ -195,7 +195,7 @@ static void x_chrlmt_set_limit_handler(struct work_struct *work)
 	prop.intval = (x_chrlmt_bat_chr_curr_limit != -1) ?
 				x_chrlmt_bat_chr_curr_limit * 1000 : -1;
 	rc = power_supply_set_property(cp_psy,
-				POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX, &prop);
+				POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT, &prop);
 	if (rc) {
 		mtk_cooler_bcct_2nd_dprintk_always("%s, set cp psy failed\n",
 								__func__);

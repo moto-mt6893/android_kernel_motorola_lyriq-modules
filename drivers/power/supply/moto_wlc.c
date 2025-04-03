@@ -817,6 +817,9 @@ int _wlc_set_setting(struct chg_alg_device *alg_dev,
 	wlc->wlc_6pin_en = setting->vbat_mon_en;
 	wlc->input_current_limit1 = setting->input_current_limit1;
 	wlc->input_current_limit2 = setting->input_current_limit2;
+#ifdef CONFIG_THERMAL_V1_CHARGER_PUMP_CURRENT_LIMIT
+	wlc->charging_current_limit1 = setting->charging_current_limit1;
+#endif
 	wlc->charging_current_limit2 = setting->charging_current_limit2;
 	wlc->mmi_fcc = setting->mmi_fcc_limit;
 

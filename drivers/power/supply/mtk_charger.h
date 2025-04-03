@@ -320,6 +320,9 @@ struct charger_data {
 	int force_charging_current;
 	int thermal_input_current_limit;
 	int thermal_charging_current_limit;
+#ifdef CONFIG_THERMAL_V1_CHARGER_PUMP_CURRENT_LIMIT
+	int thermal_charging_current_limit_cp;
+#endif
 	int usb_input_current_limit;
 	int pd_input_current_limit;
 	bool thermal_throttle_record;
