@@ -320,6 +320,10 @@
 };
 /* FINGERPRINT end */
 
+&eas_info {
+	freq-based-cost = <1>;
+};
+
 &mt6360_pmic  {
 	pwr_off_seq = [04 00 02 02];
 };
