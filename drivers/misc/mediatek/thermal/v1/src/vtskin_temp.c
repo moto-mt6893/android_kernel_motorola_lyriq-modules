@@ -831,7 +831,7 @@ static int mtktsvtskin_get_temp(struct thermal_zone_device *thermal, int *temp)
 		pr_notice("vtskin_get_temp sensor_name   %s\n", sensor_name);
         tzd = get_tzd(sensor_name); // Updated the API to get thermal zone device
 
-		if (IS_ERR_OR_NULL(tzd) || !tzd->ops->get_temp) {
+		if (IS_ERR_OR_NULL(tzd) || !tzd->ops || !tzd->ops->get_temp) {
 			pr_notice("get %s temp fail\n", sensor_name);
 			*temp = THERMAL_TEMP_INVALID;
 			return -EINVAL;
