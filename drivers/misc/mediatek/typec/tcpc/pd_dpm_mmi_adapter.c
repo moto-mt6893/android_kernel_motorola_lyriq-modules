@@ -145,6 +145,7 @@ static void mmi_adapter_set_state(struct pd_port *pd_port,uint8_t state) {
 static void mmi_adapter_cap_request(struct pd_port *pd_port,
                                     struct svdm_svid_data *svid_data)
 {
+    pd_port->cvdm_svid = svid_data->svid;
     pd_port->cvdm_cnt = 1;
 	pd_port->cvdm_wait_resp = true;
 	pd_port->cvdm_data[0] = MMI_UVDM_CMD(svid_data->svid,
@@ -156,6 +157,7 @@ static void mmi_adapter_encrypt(struct pd_port *pd_port,
                                     struct svdm_svid_data *svid_data)
 {
     uint8_t index = 0;
+    pd_port->cvdm_svid = svid_data->svid;
     pd_port->cvdm_cnt = 1 + SHA256_NUM;
     pd_port->cvdm_wait_resp = true;
 
@@ -172,6 +174,7 @@ static void mmi_adapter_encrypt(struct pd_port *pd_port,
 static void mmi_adapter_req_temp(struct pd_port *pd_port,
                                     struct svdm_svid_data *svid_data)
 {
+    pd_port->cvdm_svid = svid_data->svid;
     pd_port->cvdm_cnt = 1;
 	pd_port->cvdm_wait_resp = true;
 	pd_port->cvdm_data[0] = MMI_UVDM_CMD(svid_data->svid,
@@ -182,6 +185,7 @@ static void mmi_adapter_req_temp(struct pd_port *pd_port,
 static void mmi_adapter_verify(struct pd_port *pd_port,
                                     struct svdm_svid_data *svid_data)
 {
+    pd_port->cvdm_svid = svid_data->svid;
     pd_port->cvdm_cnt = 1;
 	pd_port->cvdm_wait_resp = true;
 	pd_port->cvdm_data[0] = MMI_UVDM_CMD(svid_data->svid,
