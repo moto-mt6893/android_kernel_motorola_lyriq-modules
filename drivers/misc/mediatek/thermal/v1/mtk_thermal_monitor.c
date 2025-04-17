@@ -1436,15 +1436,18 @@ int add_tzd(struct thermal_zone_device *tzd) {
     struct tzd_entry *entry;
 
     if (IS_ERR_OR_NULL(tzd)) {
-        pr_info("get %s for thermal zone fail\n", tzd->type);
+        printk("get %s for thermal zone fail\n", tzd->type);
         return -EINVAL;
     }
 
     entry = kmalloc(sizeof(*entry), GFP_KERNEL);
-    if (!entry)
+    if (!entry) {
+        printk("[add_tzd] failed to allocate memory\n");
         return -ENOMEM;
+    }
 
     strlcpy(entry->ref_name, tzd->type, THERMAL_NAME_LENGTH);
+    printk("[add_tzd] tzd->type : %s && entry->ref_name : %s\n",tzd->type ,entry->ref_name);
     entry->tzd = tzd;
     INIT_LIST_HEAD(&entry->list);
     list_add_tail(&entry->list, &tzd_list);
@@ -1456,6 +1459,7 @@ int remove_tzd(struct thermal_zone_device *tzd) {
     struct tzd_entry *entry, *tmp;
 
     list_for_each_entry_safe(entry, tmp, &tzd_list, list) {
+        printk("[remove_tzd] tzd->type : %s && entry->ref_name : %s\n",tzd->type ,entry->ref_name);
         if (strcmp(entry->ref_name, tzd->type) == 0) {
             list_del(&entry->list);
             kfree(entry);
@@ -1468,16 +1472,19 @@ int remove_tzd(struct thermal_zone_device *tzd) {
 
 struct thermal_zone_device *get_tzd(const char *ref_name) {
     struct tzd_entry *entry;
-
+    mutex_lock(&MTM_GET_TEMP_LOCK);
     list_for_each_entry(entry, &tzd_list, list) {
+        printk("[get_tzd] ref_name : %s && entry->ref_name : %s\n",ref_name ,entry->ref_name);
         if (strcmp(entry->ref_name, ref_name) == 0) {
+            mutex_unlock(&MTM_GET_TEMP_LOCK);
             return entry->tzd;
         }
     }
-
+    mutex_unlock(&MTM_GET_TEMP_LOCK);
     return NULL;
+
 }
-EXPORT_SYMBOL(get_tzd);
+EXPORT_SYMBOL_GPL(get_tzd);
 
 /*mtk thermal zone register function */
 struct thermal_zone_device *mtk_thermal_zone_device_register_wrapper(char *type, struct thermal_trip *trips,
