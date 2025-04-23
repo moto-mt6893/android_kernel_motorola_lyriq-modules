@@ -58,6 +58,12 @@ int pe50_get_log_level(void)
 #define PE50_WHILE_LOOP_ITERATION_MAX	50
 #define MMI_IBAT_GAP_MA 50 	/* mA */
 
+#ifdef CONFIG_MOTO_SLOW_DOWN_VBUS_STEP
+#define PE50_IBAT_FCCTAGT_GAP_LEVEL  5000
+#define PE50_IBAT_FCCTAGT_GAP_STEP    1
+#define PE50_VBAT_FCCTAGT_GAP_LEVEL  30
+#define PE50_VBAT_FCCTAGT_GAP_STEP    0
+#endif
 
 #define PE50_HWERR_NOTIFY \
 	(BIT(EVT_VBUSOVP) | BIT(EVT_IBUSOCP) | BIT(EVT_VBATOVP) | \
@@ -2435,6 +2441,12 @@ single_dvchg_select_ita:
 	else {
 		vstep_cnt = precise_div(idvchg_lmt - data->ita_measure,
 					3 * ita_gap_per_vstep);
+#ifdef CONFIG_MOTO_SLOW_DOWN_VBUS_STEP
+	if(data->mmi_max_ibat - ibat > PE50_IBAT_FCCTAGT_GAP_LEVEL)
+		vstep_cnt = min(vstep_cnt, PE50_IBAT_FCCTAGT_GAP_STEP);
+	if (vbat >= data->vbat_cv - PE50_VBAT_FCCTAGT_GAP_LEVEL)
+		vstep_cnt = min(vstep_cnt, PE50_VBAT_FCCTAGT_GAP_STEP);
+#endif
 		vta += auth_data->vta_step * (vstep_cnt + 1);
 		vta = min(vta, (u32)auth_data->vcap_max);
 		ita += ita_gap_per_vstep * (vstep_cnt + 1);
