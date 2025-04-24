@@ -1423,7 +1423,7 @@ static struct thermal_zone_params mtk_zone_params = {
 };
 
 
-
+/*
 struct tzd_entry {
     char ref_name[THERMAL_NAME_LENGTH];
     struct thermal_zone_device *tzd;
@@ -1476,7 +1476,87 @@ struct thermal_zone_device *get_tzd(const char *ref_name) {
     list_for_each_entry(entry, &tzd_list, list) {
         printk("[get_tzd] ref_name : %s && entry->ref_name : %s\n",ref_name ,entry->ref_name);
         if (strcmp(entry->ref_name, ref_name) == 0) {
-            mutex_unlock(&MTM_GET_TEMP_LOCK);
+            return entry->tzd;
+        }
+    }
+    mutex_unlock(&MTM_GET_TEMP_LOCK);
+    return NULL;
+
+}
+EXPORT_SYMBOL_GPL(get_tzd);
+*/
+
+struct tzd_entry {
+    char ref_name[THERMAL_NAME_LENGTH];
+    struct thermal_zone_device *tzd;
+    struct list_head list;
+};
+
+static LIST_HEAD(tzd_list);
+
+// Improved add_tzd function
+int add_tzd(struct thermal_zone_device *tzd)
+{
+    struct tzd_entry *entry;
+
+    if (!tzd || IS_ERR(tzd)) {  // Check tzd validity here
+        printk(KERN_ERR "%s: Invalid thermal zone device\n", __func__);
+        return -EINVAL;
+    }
+
+    entry = kmalloc(sizeof(*entry), GFP_KERNEL);
+    if (!entry) {
+        printk(KERN_ERR "[add_tzd] Memory allocation failure\n");
+        return -ENOMEM;  // Consider adding more informative error messages
+    }
+
+    strlcpy(entry->ref_name, tzd->type, THERMAL_NAME_LENGTH);
+    printk("[add_tzd] tzd->type : %s && entry->ref_name : %s\n",tzd->type ,entry->ref_name);
+
+    INIT_LIST_HEAD(&entry->list);  // Initialize list head before use
+    entry->tzd = tzd;
+
+    mutex_lock(&MTM_GET_TEMP_LOCK);  // Lock before accessing shared resource
+    list_add_tail(&entry->list, &tzd_list);
+    mutex_unlock(&MTM_GET_TEMP_LOCK);  // Unlock after access completion
+
+    return 0;
+}
+
+// Improved remove_tzd function
+int remove_tzd(struct thermal_zone_device *tzd)
+{
+    struct tzd_entry *entry, *tmp;
+
+    if (!tzd || IS_ERR(tzd)) {  // Check tzd validity first
+        printk(KERN_ERR "%s: Invalid thermal zone device\n", __func__);
+        return -EINVAL;
+    }
+
+    mutex_lock(&MTM_GET_TEMP_LOCK);  // Lock shared resource access
+    list_for_each_entry_safe(entry, tmp, &tzd_list, list) {
+	printk("[remove_tzd] tzd->type : %s && entry->ref_name : %s\n",tzd->type ,entry->ref_name);
+        if (strcmp(entry->ref_name, tzd->type) == 0) {
+            list_del(&entry->list);  // Remove from list safely
+            kfree(entry);           // Free allocated memory
+            break;                  // Exit loop upon successful removal
+        }
+    }
+    mutex_unlock(&MTM_GET_TEMP_LOCK);  // Always unlock regardless of outcome
+
+    return (entry ? 0 : -ENOENT);  // Return success/failure status
+}
+
+struct thermal_zone_device *get_tzd(const char *ref_name) {
+    struct tzd_entry *entry;
+
+    printk("Input ref_name: '%s'\n", ref_name);
+
+    mutex_lock(&MTM_GET_TEMP_LOCK);
+    list_for_each_entry(entry, &tzd_list, list) {
+        printk("[get_tzd] ref_name : %s && entry->ref_name : %s\n",ref_name ,entry->ref_name);
+        if (strcmp(entry->ref_name, ref_name) == 0) {
+			mutex_unlock(&MTM_GET_TEMP_LOCK);
             return entry->tzd;
         }
     }
@@ -1556,7 +1636,6 @@ int passive_delay_jiffies,int polling_delay_jiffies)
 	/* registered the last_temperature to local arra */
 	mutex_lock(&MTM_GET_TEMP_LOCK);
 	{
-		add_tzd(tz);
 		if (tzidx >= 0 && tzidx < MTK_THERMAL_SENSOR_COUNT)
 			tz_last_values[tzidx] = &(tz->temperature);
 	}
@@ -1583,7 +1662,7 @@ int passive_delay_jiffies,int polling_delay_jiffies)
 		}
 		mutex_unlock(&MTM_TZ_PROC_DIR_LOCK);
 	}
-
+	add_tzd(tz);
 	/* This interface function adds a new thermal zone device */
 	return tz;
 
@@ -1631,12 +1710,13 @@ void mtk_thermal_zone_device_unregister_wrapper(struct thermal_zone_device *tz)
 
 	THRML_LOG("%s+ tz : %s\n", __func__, type);
 
-	thermal_zone_device_unregister(tz);
 
-	mutex_lock(&MTM_GET_TEMP_LOCK);
 	if (tz)
 		remove_tzd(tz);
-	mutex_unlock(&MTM_GET_TEMP_LOCK);
+
+	thermal_zone_device_unregister(tz);
+
+
 	THRML_LOG("%s- tz: %s\n", __func__, type);
 
 	/* free memory */
