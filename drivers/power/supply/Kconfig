@@ -374,4 +374,10 @@ config MOTO_GET_TEMPERATURE_FROM_MTK
 	  When the temperature of the custom third-party fuel gauge
 	  is inaccurate, use the MTK temperature acquisition channel.
 
+config MOTO_SLOW_DOWN_VBUS_STEP
+    tristate "Slow down the boost speed of vbus"
+    default n
+	help
+	  Aviod ovp caused by the rapid increase of vbus voltage
+
 source "$(KCONFIG_EXT_PREFIX)drivers/power/supply/ufcs/Kconfig"
