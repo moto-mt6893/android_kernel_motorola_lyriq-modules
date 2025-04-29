@@ -37,7 +37,7 @@
 
 /* Time in ms */
 #define ADC_WAIT_TIME_MS	25
-#define ADC_CONV_TIMEOUT_MS	300
+#define ADC_CONV_TIMEOUT_MS	100
 #define ADC_LOOP_TIME_US	2000
 
 enum {

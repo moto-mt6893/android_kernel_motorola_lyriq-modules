@@ -3160,6 +3160,7 @@ cpus {
 			clock-names = "main", "dma";
 			clock-div = <1>;
 			mediatek,control-rs-stop;
+			mediatek,fifo-use-polling;
 		};
 
 		imp_iic_wrap_w: imp_iic_wrap_w@11e01000 {
