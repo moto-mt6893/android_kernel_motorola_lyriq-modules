@@ -868,7 +868,7 @@ static int mt6360_chgdet_post_process(struct mt6360_chg_info *mci)
 	/* Plug out during BC12 */
 	if (!attach) {
 		dev_info(mci->dev, "%s: Charger Type: UNKONWN\n", __func__);
-		mci->psy_desc.type = POWER_SUPPLY_TYPE_UNKNOWN;
+		mci->psy_desc.type = POWER_SUPPLY_TYPE_USB;
 		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_UNKNOWN;
 		goto out;
 	}
