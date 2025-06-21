@@ -716,7 +716,9 @@ extern int mtk_adapter_protocol_init(struct mtk_charger *info);
 extern void mtk_check_ta_status(struct mtk_charger *info);
 /* functions for other */
 extern int mtk_chg_enable_vbus_ovp(bool enable);
+#if IS_REACHABLE(CONFIG_MTK_HANG_DETECT)
 extern void aee_kernel_RT_Monitor_api_factory(void);
+#endif
 
 #define ONLINE(idx, attach)		((idx & 0xf) << 4 | (attach & 0xf))
 #define ONLINE_GET_IDX(online)		((online >> 4) & 0xf)
