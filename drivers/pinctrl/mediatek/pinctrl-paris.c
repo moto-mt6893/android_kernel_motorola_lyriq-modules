@@ -21,6 +21,10 @@
 
 #include "pinctrl-paris.h"
 
+#ifdef CONFIG_MOT_LYRIQ
+#include "pinctrl-mtk-mt6885.h"
+#endif
+
 /* Custom pinconf parameters */
 #define MTK_PIN_CONFIG_TDSEL	(PIN_CONFIG_END + 1)
 #define MTK_PIN_CONFIG_RDSEL	(PIN_CONFIG_END + 2)
@@ -1084,6 +1088,16 @@ int mtk_paris_pinctrl_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Failed to add gpio_chip\n");
 		return err;
 	}
+
+	#ifdef CONFIG_MOT_LYRIQ
+	if(!err) {
+		struct mtk_pinctrl *hw = platform_get_drvdata(pdev);
+		if(hw) {
+			mtk_pinconf_drive_set_raw(hw,&mtk_pins_mt6885[156],2);
+			pr_info("set Pin-156 driving strength 2");
+		}
+	}
+	#endif
 
 	return 0;
 }
