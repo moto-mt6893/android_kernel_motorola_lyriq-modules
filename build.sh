@@ -26,6 +26,7 @@ KLEAF_ARGS=("${DEBUG_ARGS} ${SANDBOX_ARGS} \
 	--experimental_writable_outputs \
 	--noenable_bzlmod \
 	--config=stamp \
+	--nogzip_is_pigz \
 	--//build/bazel_mgk_rules:kernel_version=${KERNEL_VERSION_NUM}")
 
 set -x
