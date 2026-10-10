@@ -1102,8 +1102,9 @@ mgk_64_platform_device_user_modules = {
 
 
 def get_overlay_modules_list():
-    if "moto" in DEFCONFIG_OVERLAYS:
+    if "moto" in DEFCONFIG_OVERLAYS or "lyriq" in DEFCONFIG_OVERLAYS:
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/misc/utag:utags")
+    if "moto" in DEFCONFIG_OVERLAYS:
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/moto_f_usbnet:moto_f_usbnet")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/moto_swap:moto_swap")
         mgk_64_kleaf_modules.append("//motorola/kernel/modules/drivers/moto_mmap_fault:moto_mmap_fault")
