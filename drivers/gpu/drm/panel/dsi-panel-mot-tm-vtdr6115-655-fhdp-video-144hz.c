@@ -874,18 +874,54 @@ static int mode_switch(struct drm_panel *panel, unsigned int cur_mode,
 #endif
 
 static struct mtk_panel_para_table panel_lhbm_on[] = {
-   {3, {0xf0, 0xaa, 0x13}},
-   {2, {0xc6, 0x01}},
-   {3, {0x63, 0x03, 0xff}},
-   {3, {0x51, 0x06, 0x8f}},
-   {2, {0x62, 0x03}},
+	{3, {0xf0, 0xaa, 0x00}},
+	{2, {0x6c, 0x02}},
+	{2, {0x62, 0x00}},
+	{3, {0xf0, 0xaa, 0x13}},
+	{2, {0xc6, 0x01}},
+	{3, {0x63, 0x03, 0xff}},
+	{3, {0x51, 0x06, 0x8f}},
+	{2, {0x62, 0x03}},
 };
 
-static struct mtk_panel_para_table panel_lhbm_off[] = {
-   {2, {0x62, 0x00}},
-   {3, {0x51, 0x06, 0x8f}},
-   {3, {0xf0, 0xaa, 0x13}},
-   {2, {0xc6, 0x00}},
+static struct mtk_panel_para_table panel_lhbm_off_60hz[] = {
+	{3, {0xf0, 0xaa, 0x13}},
+	{2, {0xc6, 0x00}},
+	{3, {0xf0, 0xaa, 0x00}},
+	{3, {0x51, 0x06, 0x8f}},
+	{2, {0x6c, 0x00}},
+	{2, {0x62, 0x00}},
+};
+
+static struct mtk_panel_para_table panel_lhbm_off_90hz[] = {
+	{3, {0xf0, 0xaa, 0x13}},
+	{2, {0xc6, 0x00}},
+	{3, {0xf0, 0xaa, 0x00}},
+	{3, {0x51, 0x06, 0x8f}},
+	{2, {0x6c, 0x01}},
+	{2, {0x62, 0x01}},
+	{3, {0xf0, 0xaa, 0x10}},
+	{14, {0xb1, 0x01, 0x55, 0x00, 0x18, 0x0d, 0x98, 0x00, 0x01, 0x55, 0x00, 0x18, 0x05, 0xe8}},
+};
+
+static struct mtk_panel_para_table panel_lhbm_off_120hz[] = {
+	{3, {0xf0, 0xaa, 0x13}},
+	{2, {0xc6, 0x00}},
+	{3, {0xf0, 0xaa, 0x00}},
+	{3, {0x51, 0x06, 0x8f}},
+	{2, {0x6c, 0x01}},
+	{2, {0x62, 0x00}},
+	{3, {0xf0, 0xaa, 0x10}},
+	{14, {0xb1, 0x01, 0x55, 0x00, 0x18, 0x0d, 0x98, 0x00, 0x01, 0x55, 0x00, 0x18, 0x02, 0x10}},
+};
+
+static struct mtk_panel_para_table panel_lhbm_off_144hz[] = {
+	{3, {0xf0, 0xaa, 0x13}},
+	{2, {0xc6, 0x00}},
+	{3, {0xf0, 0xaa, 0x00}},
+	{3, {0x51, 0x06, 0x8f}},
+	{2, {0x6c, 0x02}},
+	{2, {0x62, 0x00}},
 };
 
 static void set_lhbm_alpha(unsigned int bl_level, unsigned int on)
@@ -896,8 +932,8 @@ static void set_lhbm_alpha(unsigned int bl_level, unsigned int on)
 	unsigned int dbv = 0;
 
 	if(on) {
-		pAlphaTable = &panel_lhbm_on[2];
-		pDbvTable = &panel_lhbm_on[3];
+		pAlphaTable = &panel_lhbm_on[5];
+		pDbvTable = &panel_lhbm_on[6];
 		if(bl_level < 1679)	//0x68f, bl threshold
 			dbv = 1679;
 		else
@@ -915,11 +951,16 @@ static void set_lhbm_alpha(unsigned int bl_level, unsigned int on)
 		pr_info("%s: backlight %d alpha %d(0x%x, 0x%x), dbv(0x%x, 0x%x)\n", __func__, bl_level, alpha,
 			pAlphaTable->para_list[1], pAlphaTable->para_list[2], pDbvTable->para_list[1], pDbvTable->para_list[2]);
 	} else {
-		pDbvTable = &panel_lhbm_off[1];
-		pDbvTable->para_list[1] = (bl_level >> 8) & 0xFF;
-		pDbvTable->para_list[2] = bl_level & 0xFF;
+		panel_lhbm_off_60hz[3].para_list[1] = (bl_level >> 8) & 0xFF;
+		panel_lhbm_off_60hz[3].para_list[2] = bl_level & 0xFF;
+		panel_lhbm_off_90hz[3].para_list[1] = (bl_level >> 8) & 0xFF;
+		panel_lhbm_off_90hz[3].para_list[2] = bl_level & 0xFF;
+		panel_lhbm_off_120hz[3].para_list[1] = (bl_level >> 8) & 0xFF;
+		panel_lhbm_off_120hz[3].para_list[2] = bl_level & 0xFF;
+		panel_lhbm_off_144hz[3].para_list[1] = (bl_level >> 8) & 0xFF;
+		panel_lhbm_off_144hz[3].para_list[2] = bl_level & 0xFF;
 		pr_info("%s: backlight restore %d dbv(0x%x, 0x%x)\n", __func__, bl_level,
-			pDbvTable->para_list[1], pDbvTable->para_list[2]);
+			(bl_level >> 8) & 0xFF, bl_level & 0xFF);
 	}
 }
 
@@ -933,14 +974,20 @@ static int panel_lhbm_set_cmdq(void *dsi, dcs_grp_write_gce cb, void *handle, ui
 		para_count = sizeof(panel_lhbm_on) / sizeof(struct mtk_panel_para_table);
 		pTable = panel_lhbm_on;
 	} else {
-		para_count = sizeof(panel_lhbm_off) / sizeof(struct mtk_panel_para_table);
-		if(fps == 90)
-			panel_lhbm_off[0].para_list[1] = 0x01;
-		else
-			panel_lhbm_off[0].para_list[1] = 0x00;
-		pr_info("%s: panel_lhbm_off(0x%x, 0x%x)\n", __func__,
-			panel_lhbm_off[0].para_list[0], panel_lhbm_off[0].para_list[1]);
-		pTable = panel_lhbm_off;
+		if (fps == 60) {
+			para_count = sizeof(panel_lhbm_off_60hz) / sizeof(struct mtk_panel_para_table);
+			pTable = panel_lhbm_off_60hz;
+		} else if (fps == 90) {
+			para_count = sizeof(panel_lhbm_off_90hz) / sizeof(struct mtk_panel_para_table);
+			pTable = panel_lhbm_off_90hz;
+		} else if (fps == 120) {
+			para_count = sizeof(panel_lhbm_off_120hz) / sizeof(struct mtk_panel_para_table);
+			pTable = panel_lhbm_off_120hz;
+		} else {
+			para_count = sizeof(panel_lhbm_off_144hz) / sizeof(struct mtk_panel_para_table);
+			pTable = panel_lhbm_off_144hz;
+		}
+		pr_info("%s: panel_lhbm_off for fps %d, para_count %d\n", __func__, fps, para_count);
 	}
 	cb(dsi, handle, pTable, para_count);
 	pr_info("%s: para_count %d\n", __func__, para_count);
@@ -1063,7 +1110,7 @@ static int panel_hbm_waitfor_fps_valid(struct drm_panel *panel, unsigned int tim
 
 	if (count == 0) return 0;
 	pr_info("%s+, fps = %d \n", __func__, ctx->current_fps);
-	while((ctx->current_fps != 120)) {
+	while((ctx->current_fps != 144)) {
 		if (!count) {
 			pr_warn("%s: it is timeout, and current_fps = %d\n", __func__, ctx->current_fps);
 			break;
@@ -1161,7 +1208,7 @@ static int lcm_get_modes(struct drm_panel *panel,
 		return -ENOMEM;
 	}
 	drm_mode_set_name(mode_3);
-	mode_3->type = DRM_MODE_TYPE_DRIVER| DRM_MODE_TYPE_PREFERRED;;
+	mode_3->type = DRM_MODE_TYPE_DRIVER;
 	drm_mode_probed_add(connector, mode_3);
 
 	mode_4 = drm_mode_duplicate(connector->dev, &switch_mode_144hz);
@@ -1172,7 +1219,7 @@ static int lcm_get_modes(struct drm_panel *panel,
 		return -ENOMEM;
 	}
 	drm_mode_set_name(mode_4);
-	mode_4->type = DRM_MODE_TYPE_DRIVER;
+	mode_4->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
 	drm_mode_probed_add(connector, mode_4);
 
 	connector->display_info.width_mm = 68;
