@@ -794,12 +794,9 @@ struct ACDK_SENSOR_INFO_STRUCT {
 	MUINT32 SensorModuleID;
 
 /* IKSWR-45543 Begin*/
+	MUINT8 calibration_data[64];
 	mot_calibration_status_t calibration_status;
 	mot_calibration_mnf_t mnf_calibration;
-#if 0
-	mot_calibration_awb_t awb_calibration;
-	mot_calibration_af_t af_calibration;
-#endif
 /* IKSWR-45543 End*/
 	mot_calibration_3aInfo_t calibration_3aInfo;
 };

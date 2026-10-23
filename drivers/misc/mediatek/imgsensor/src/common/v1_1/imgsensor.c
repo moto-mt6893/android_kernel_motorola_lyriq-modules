@@ -3,6 +3,7 @@
  * Copyright (c) 2019 MediaTek Inc.
  */
 
+#include <linux/build_bug.h>
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 #include <linux/cdev.h>
@@ -56,6 +57,10 @@
 #endif
 
 #include "seninf_drv.h"
+
+static_assert(offsetof(struct ACDK_SENSOR_INFO_STRUCT, calibration_data) == 0x128);
+static_assert(offsetof(struct ACDK_SENSOR_INFO_STRUCT, calibration_status) == 0x168);
+static_assert(offsetof(struct ACDK_SENSOR_INFO_STRUCT, mnf_calibration) == 0x184);
 
 static DEFINE_MUTEX(gimgsensor_mutex);
 static DEFINE_MUTEX(gimgsensor_open_mutex);
