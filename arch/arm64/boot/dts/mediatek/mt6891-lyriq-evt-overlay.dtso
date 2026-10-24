@@ -30,7 +30,7 @@
 	BATTERY_TMP_TO_ENABLE_EXTFG = <1>;
 };
 
-#include <lyriq_evb/cust.dtsi>
+#include "lyriq_evb/cust.dtsi"
 
 
 /* #include "mediatek/lyriq-touchscreen.dtsi" */

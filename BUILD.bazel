@@ -92,5 +92,5 @@ define_mgk(
     device_user_modules = mgk_64_device_user_modules,
     platform_device_user_modules = mgk_64_platform_device_user_modules,
     symbol_list = mgk_kmi_symbol_list,
-    dtb_files = ["mt6893.dtb"],
+    dtb_files = ["mt6893.dtb", "mt6891-lyriq-evb-overlay.dtbo", "mt6891-lyriq-evt-overlay.dtbo", "mt6891-lyriq-dvt-overlay.dtbo"],
 )

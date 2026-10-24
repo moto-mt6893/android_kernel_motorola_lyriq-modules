@@ -14,3 +14,7 @@ DTC_INCLUDE += $(dir $(src))
 DTC_FLAGS += -@
 
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt6893.dtb
+
+dtb-$(CONFIG_ARCH_MEDIATEK) += mt6891-lyriq-evb-overlay.dtbo
+dtb-$(CONFIG_ARCH_MEDIATEK) += mt6891-lyriq-evt-overlay.dtbo
+dtb-$(CONFIG_ARCH_MEDIATEK) += mt6891-lyriq-dvt-overlay.dtbo

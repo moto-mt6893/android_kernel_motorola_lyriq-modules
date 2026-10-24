@@ -21,6 +21,7 @@ kernel_dtstree(
             "mediatek/Makefile",
             "mediatek/**/*.dtsi",
             "mediatek/**/*.dts",
+            "mediatek/**/*.dtso",
         ],
         exclude = [
             "**/.*",
@@ -30,6 +31,16 @@ kernel_dtstree(
         ],
     ) + [
 	    "//kernel_device_modules-6.6:mgk_dt-bindings",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "mtk_dtbo",
+    srcs = [
+        "//kernel_device_modules-6.6:mgk_64_k66.user/mt6891-lyriq-evb-overlay.dtbo",
+        "//kernel_device_modules-6.6:mgk_64_k66.user/mt6891-lyriq-evt-overlay.dtbo",
+        "//kernel_device_modules-6.6:mgk_64_k66.user/mt6891-lyriq-dvt-overlay.dtbo",
     ],
     visibility = ["//visibility:public"],
 )

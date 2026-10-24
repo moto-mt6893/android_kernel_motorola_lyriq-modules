@@ -39,6 +39,11 @@ cp -a "${SRC}/${TARGET_DEVICE}_customer_modules_install.user/"*.ko "${FINAL_DIST
 find "${SRC}/${TARGET_DEVICE}_kernel_aarch64.user/" -name '*.ko' -exec cp -t "${FINAL_DIST}/" {} +
 cp -a "${SRC}/${TARGET_DEVICE}_kernel_aarch64.user/"Image.* "${FINAL_DIST}/"
 
+dtbo_img="${SRC}/${TARGET_DEVICE}_kernel_images.user_dtbo/dtbo.img"
+if [ -f "${dtbo_img}" ]; then
+    cp -a "${dtbo_img}" "${FINAL_DIST}/"
+fi
+
 cp -a "${SRC}/${TARGET_DEVICE}_merged_uapi_headers.user/"* "${FINAL_DIST}/"
 
 cp -a "${SRC}/${TARGET_DEVICE}.user/"*.dtb "${FINAL_DIST}/"
