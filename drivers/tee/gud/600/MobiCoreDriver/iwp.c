@@ -291,19 +291,27 @@ static int iwp_cmd(struct iwp_session *iwp_session, u32 id,
 	 *
 	 * We do provide a way out to make applications killable in some cases
 	 * though.
+	 *
+	 * A secure request may remain pending across system suspend. Let its
+	 * caller freeze without cancelling the request or releasing its buffers.
+	 * The session-private iws_lock remains held, but neither the completion
+	 * handler nor the suspend notifier needs it.
 	 */
 	if (killable) {
-		ret = wait_for_completion_killable(&iwp_session->completion);
+		ret = wait_for_completion_state(&iwp_session->completion,
+				TASK_KILLABLE | TASK_FREEZABLE_UNSAFE);
 		if (ret) {
 			iwp_request_cancellation(iwp_session->slot);
 			/* Make sure the SWd did not die in the meantime */
 			if (l_ctx.iwp_dead)
 				return -EHOSTUNREACH;
 
-			wait_for_completion(&iwp_session->completion);
+			wait_for_completion_state(&iwp_session->completion,
+				TASK_UNINTERRUPTIBLE | TASK_FREEZABLE_UNSAFE);
 		}
 	} else {
-		wait_for_completion(&iwp_session->completion);
+		wait_for_completion_state(&iwp_session->completion,
+				TASK_UNINTERRUPTIBLE | TASK_FREEZABLE_UNSAFE);
 	}
 
 	if (l_ctx.iwp_dead)
